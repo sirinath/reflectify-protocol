@@ -27,9 +27,9 @@ import java.util.Collection;
 
 public interface ReflectifyRegistry {
 
-    void register(ReflectifyProtocol reflectifyToolbox);
+    void register(ReflectifyProtocol reflectifyProtocol);
 
-    void registerAll(Collection<ReflectifyProtocol> reflectifyToolboxes);
+    void registerAll(Collection<ReflectifyProtocol> reflectifyProtocols);
 
     boolean isRegistered(Class type);
 
