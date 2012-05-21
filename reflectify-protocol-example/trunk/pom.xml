@@ -7,7 +7,7 @@
     <version>0.3.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>reflectify-protocol-example</name>
-    <url>http://code.google.com/p/code-g</url>
+    <url>http://code.google.com/p/reflectify-protocol</url>
     <description>Java code generation examples</description>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -20,9 +20,9 @@
         </license>
     </licenses>
     <scm>
-        <url>http://code-g.googlecode.com/svn/code-g-examples/trunk/</url>
-        <connection>scm:svn:http://code-g.googlecode.com/svn/code-g-examples/trunk</connection>
-        <developerConnection>scm:svn:http://code-g.googlecode.com/svn/code-g-examples/trunk</developerConnection>
+        <url>https://reflectify-protocol.googlecode.com/svn/reflectify-protocol-examples/trunk/</url>
+        <connection>scm:svn:https://reflectify-protocol.googlecode.com/svn/reflectify-protocol-examples/trunk</connection>
+        <developerConnection>scm:svn:https://reflectify-protocol.googlecode.com/svn/reflectify-protocol-examples/trunk</developerConnection>
     </scm>
     <developers>
         <developer>
@@ -47,37 +47,37 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>org.abstractmeta</groupId>
-                <artifactId>code-g-maven-plugin</artifactId>
-                <version>0.3.0-SNAPSHOT</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.abstractmeta</groupId>
-                        <artifactId>reflectify-protocol-codegen</artifactId>
-                        <version>0.3.0-SNAPSHOT</version>
-              </dependency>
-                </dependencies>
-                <configuration>
-                    <units>
-                        <unit>
-                            <sourcePackage>org.abstractmeta.reflectify.example</sourcePackage>
-                            <descriptors>
-                                <descriptor>
-                                    <plugin>org.abstractmeta.reflectify.plugin.ReflectifyGenerator</plugin>
-                                </descriptor>
-                            </descriptors>
-                        </unit>
-                    </units>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+<plugin>
+    <groupId>org.abstractmeta</groupId>
+    <artifactId>code-g-maven-plugin</artifactId>
+    <version>0.3.0</version>
+    <dependencies>
+        <dependency>
+            <groupId>org.abstractmeta</groupId>
+            <artifactId>reflectify-protocol-codegen</artifactId>
+            <version>0.3.0-SNAPSHOT</version>
+  </dependency>
+    </dependencies>
+    <configuration>
+        <units>
+            <unit>
+                <sourcePackage>org.abstractmeta.reflectify.example</sourcePackage>
+                <descriptors>
+                    <descriptor>
+                        <plugin>org.abstractmeta.reflectify.plugin.ReflectifyGenerator</plugin>
+                    </descriptor>
+                </descriptors>
+            </unit>
+        </units>
+    </configuration>
+    <executions>
+        <execution>
+            <goals>
+                <goal>compile</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
 
 
         </plugins>
