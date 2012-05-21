@@ -32,7 +32,8 @@ You can use this library for reflection in the following way
 
 === Instantiate ReflectifyProtocol ===
 
-==== Runtime generated ===
+==== Runtime generated ====
+
 {{{
 
 
@@ -43,7 +44,7 @@ You can use this library for reflection in the following way
 
 
 
-=== Statically generated ===
+==== Statically generated ====
 
 {{{  
 
@@ -116,6 +117,64 @@ You can use this library for reflection in the following way
 
 == Maven configuration ==
 
+This library is managed by maven central repository, at this time however it is only in the snapshot repository.
+
+=== Maven dependency ===
+{{{
+<dependency>
+  <groupId>org.abstractmeta</groupId>
+    <artifactId>reflectify-protocol-core</artifactId>
+    <version>0.3.0-SNAPSHOT</version>
+</dependency>
+}}}
+
+==== Dynamic runtime reflectify code generation dependency ===
+{{{
+<dependency>
+    <groupId>org.abstractmeta</groupId>
+    <artifactId>reflectify-protocol-runtime</artifactId>
+    <version>0.3.0-SNAPSHOT</version>
+</dependency>
+}}}
+
+
+=== Static reflectify code generation plugin configuration ===
+
+for example plugin configuration for all 'org.abstractmeta.reflectify.example' package types  
+{{{
+
+<plugin>
+    <groupId>org.abstractmeta</groupId>
+    <artifactId>code-g-maven-plugin</artifactId>
+    <version>0.3.0</version>
+    <dependencies>
+        <dependency>
+            <groupId>org.abstractmeta</groupId>
+            <artifactId>reflectify-protocol-codegen</artifactId>
+            <version>0.3.0-SNAPSHOT</version>
+  </dependency>
+    </dependencies>
+    <configuration>
+        <units>
+            <unit>
+                <sourcePackage>org.abstractmeta.reflectify.example</sourcePackage>
+                <descriptors>
+                    <descriptor>
+                        <plugin>org.abstractmeta.reflectify.plugin.ReflectifyGenerator</plugin>
+                    </descriptor>
+                </descriptors>
+            </unit>
+        </units>
+    </configuration>
+    <executions>
+        <execution>
+            <goals>
+                <goal>compile</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+}}}
 
 == More examples == 
 
