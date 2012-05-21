@@ -31,14 +31,30 @@ public class Employee {
 You can use this library for reflection in the following way
 
 === Instantiate ReflectifyProtocol ===
+
+==== Runtime generated ===
 {{{
+
+
+    ReflectifyRegistry registry = new ReflectifyRuntimeRegistry(); 
+    ReflectifyProtocol<Employee> reflectify = registry.get(Employee.class);
+
+}}}
+
+
+
+=== Statically generated ===
+
+{{{  
 
     // for statically generated reflectify implementation 
     ReflectifyRegistry registry = new ReflectifyRegistryImpl();
     registry.registerAll(new ExampleReflectifyProvider().get());
     ReflectifyProtocol<Employee> reflectify = registry.get(Employee.class);
 
+
 }}}
+
 
 === Using Provider ===
 {{{
