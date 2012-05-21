@@ -24,9 +24,9 @@
         </license>
     </licenses>
     <scm>
-        <url>https://code-g.googlecode.com/svn/code-g-maven-plugin/trunk/</url>
-        <connection>scm:svn:https://code-g.googlecode.com/svn/code-g-maven-plugin/trunk</connection>
-        <developerConnection>scm:svn:https://code-g.googlecode.com/svn/code-g-maven-plugin/trunk</developerConnection>
+        <url>https://reflectify-protocol.googlecode.com/svn/reflectify-protocol-api/trunk/</url>
+        <connection>scm:svn:https://reflectify-protocol.googlecode.com/svn/reflectify-protocol-api/trunk</connection>
+        <developerConnection>scm:svn:https://reflectify-protocol.googlecode.com/svn/reflectify-protocol-api/trunk</developerConnection>
     </scm>
     <developers>
         <developer>
