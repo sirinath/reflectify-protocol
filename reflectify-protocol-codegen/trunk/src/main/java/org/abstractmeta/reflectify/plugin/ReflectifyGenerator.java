@@ -75,9 +75,11 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
         if(targetPackage == null) {
             targetPackage = StringUtil.substringBeforeLastIndexOf(descriptor.getSourceClass(), ".");
         }
-        String parentPackage = StringUtil.substringAfterLastIndexOf(targetPackage, ".");
+        int lastDotPosition = targetPackage.lastIndexOf('.');
+        int nextToLastDotPosition = targetPackage.lastIndexOf('.', lastDotPosition - 3);
+        String parentPackage = targetPackage.substring(nextToLastDotPosition + 1, lastDotPosition);
         String providerTypeName = targetPackage + "." + StringUtil.format(CaseFormat.UPPER_CAMEL, parentPackage, "reflectifyProvider", CaseFormat.LOWER_CAMEL);
-        Type resultType = new ParameterizedTypeImpl(null, List.class, ReflectifyProtocol.class);
+        Type resultType = new ParameterizedTypeImpl(null, Collection.class, ReflectifyProtocol.class);
         registryTypeBuilder.addModifier("public").setTypeName(providerTypeName)
                 .addSuperInterface(new ParameterizedTypeImpl(null, Provider.class, resultType));
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder().addModifier("public")
@@ -360,8 +362,8 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
     @Override
     public Map<String, String> getOptions() {
         Map<String, String> result = new HashMap<String, String>();
-        result.put("targetPackage", "meta");
-        result.put("targetPostfix", "Meta");
+        result.put("targetPackage", "reflectify");
+        result.put("targetPostfix", "Reflectify");
         return result;
     }
 }
