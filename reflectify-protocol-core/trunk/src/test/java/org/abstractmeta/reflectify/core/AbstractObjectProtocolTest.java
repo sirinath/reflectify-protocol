@@ -38,9 +38,9 @@ public class AbstractObjectProtocolTest {
         Assert.assertEquals(foo.getId(), 10);
         foo.setName("abc");
         Assert.assertEquals(fooProtocol.getAccessor(String.class, "name").get(foo), "abc");
-        String toString = fooProtocol.getMethodInvokder(String.class, "toString").invoke(foo);
+        String toString = fooProtocol.getMethodInvoker(String.class, "toString").invoke(foo);
 
-        MethodInvoker<Foo, String> say = fooProtocol.getMethodInvokder(String.class, "say");
+        MethodInvoker<Foo, String> say = fooProtocol.getMethodInvoker(String.class, "say");
         say.getParameterSetter(String.class, 0).set("hello world");
         Assert.assertEquals(say.invoke(foo), "hello world");
         Assert.assertEquals(toString, "Foo{id=10, name='abc'}");
