@@ -57,7 +57,7 @@ public abstract class AbstractReflectifyProtocol<I> implements ReflectifyProtoco
         this.methods = getMethods();
     }
 
-    protected List<Provider<I>> getProviders() {
+    public List<Provider<I>> getProviders() {
         List<Provider<I>> result = new ArrayList<Provider<I>>();
         registerProviders(result);
         return result;
@@ -121,7 +121,7 @@ public abstract class AbstractReflectifyProtocol<I> implements ReflectifyProtoco
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> MethodInvoker<I, T> getMethodInvokder(Class<T> methodResultType, String methodName, Class... argumentTypes) {
+    public <T> MethodInvoker<I, T> getMethodInvoker(Class<T> methodResultType, String methodName, Class... argumentTypes) {
         MethodInvoker<I, Object> result = getMethodInvoker(methodName, argumentTypes);
         if(result == null) {
             return null;
