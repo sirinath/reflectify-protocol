@@ -17,6 +17,7 @@ package org.abstractmeta.reflectify;
 
 
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -31,8 +32,10 @@ public interface ReflectifyProtocol<I> {
     Class<I> getType();
 
     Provider<I> getProvider(Class... argumentTypes);
+    
+    List<Provider<I>> getProviders();
 
-    <T> MethodInvoker<I, T> getMethodInvokder(Class<T> methodResultType, String methodName, Class... argumentTypes);
+    <T> MethodInvoker<I, T> getMethodInvoker(Class<T> methodResultType, String methodName, Class... argumentTypes);
 
     MethodInvoker<I, Object> getMethodInvoker(String methodName, Class... argumentTypes);
 
@@ -45,7 +48,7 @@ public interface ReflectifyProtocol<I> {
     <T> Mutator<I, T> getMutator(Class<T> fieldType, String fieldName);
 
     Mutator<I, Object> getMutator(String fieldName);
-
+    
     List<String> getFieldNames();
     
     Class getFieldType(String fieldName);
