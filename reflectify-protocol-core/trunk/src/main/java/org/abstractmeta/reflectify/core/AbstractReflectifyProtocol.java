@@ -151,7 +151,7 @@ public abstract class AbstractReflectifyProtocol<I> implements ReflectifyProtoco
 
     @Override
     @SuppressWarnings("unchecked")
-    public Provider<I> getProvider( Class... argumentTypes) {
+    public Provider<I> getProvider(Class... argumentTypes) {
         String key = getMethodArguments(argumentTypes);
         for(Provider<I> executorCandidate: providers) {
             String candidateKey = getMethodArguments(executorCandidate.getGenericParameterTypes());
@@ -159,7 +159,7 @@ public abstract class AbstractReflectifyProtocol<I> implements ReflectifyProtoco
                 return executorCandidate;
             }
         }
-        return null;
+        throw new IllegalArgumentException("Failed to find provider matching " + key);
     }
 
 
