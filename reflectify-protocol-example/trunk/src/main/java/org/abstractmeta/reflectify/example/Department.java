@@ -1,12 +1,6 @@
 package org.abstractmeta.reflectify.example;
 
-/**
- * Represents Department
- * <p>
- * </p>
- *
- * @author Adrian Witas
- */
+
 public class Department {
     private int id;
     private String name;
