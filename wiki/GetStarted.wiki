@@ -1,0 +1,107 @@
+= Introduction =
+
+This library provides fast reflection. All operation for a given type are aggregated, and the following are available
+
+  * Provider - responsible for creating a new instance of a given type.
+  * Accessor - responsible for getting a value of a given field.
+  * Mutator - responsible for setting value of a given field.
+  * MethodInvoker - responsible for invoking a given method.
+
+= Details =
+
+Take for example the following Employee class
+
+{{{
+
+public class Employee {
+    private int id;
+    private String name;
+    private Department department;
+    private float salary;
+    //constructors
+    ...
+    
+    //getters and setters
+    ...
+}
+
+
+}}}
+
+You can use this library for reflection in the following way
+
+=== Instantiate ReflectifyProtocol ===
+{{{
+
+    // for statically generated reflectify implementation 
+    ReflectifyRegistry registry = new ReflectifyRegistryImpl();
+    registry.registerAll(new ExampleReflectifyProvider().get());
+    ReflectifyProtocol<Employee> reflectify = registry.get(Employee.class);
+
+}}}
+
+=== Using Provider ===
+{{{
+
+    //for zero argument constructor
+    ReflectifyProtocol.Provider<Employee> provider = reflectify.getProvider();
+    Employee employee = provider.get();
+   
+   //for String.class, int.class, ... constructor parameters
+   ReflectifyProtocol.Provider<Employee> provider = reflectify.getProvider(String.class, int.class, ...); 
+    Employee employee = provider.get();
+ 
+
+}}}
+
+=== Using Mutator ===
+{{{
+
+ 
+    Mutator<Employee, String> nameMutator = reflectify.getMutator(String.class, "name");
+    nameMutator.set("Name 1");
+
+   //or
+
+    Mutator<Employee, Object> nameMutator = reflectify.getMutator("name");
+    nameMutator.set(employee, "Name 1");
+
+}}}
+
+
+=== Using Accessor ===
+{{{
+
+    Accessor<Employee, Float> salaryAccessor = reflectify.getAccessor(Float.class, "salary");
+    float salary = salaryAccessor.get(employee);
+
+    //or
+    Accessor<Employee, Object> salaryAccessor = reflectify.getAccessor("salary");
+    float salary = salaryAccessor.get(employee);
+
+
+}}}
+
+=== Method invoker ===
+
+{{{
+
+        MethodInvoker<Employee, Void> setNameInvoker = reflectify.getMethodInvoker(void.class, "setName", String.class);
+        
+        //method parameter setting starting form index 0 for 1st parameter
+        setNameInvoker.getParameterSetter(0).set("abc");
+        
+
+       setNameInvoker.invoke(employee);
+
+
+}}}
+
+
+== Maven configuration ==
+
+
+== More examples == 
+
+For more example check out the following example project
+[https://reflectify-protocol.googlecode.com/svn/reflectify-protocol-example/trunk/ example]
