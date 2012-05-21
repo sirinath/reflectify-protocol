@@ -138,7 +138,7 @@ This library is managed by maven central repository, at this time however it is 
 }}}
 
 
-=== Static reflectify code generation plugin configuration ===
+==== Static reflectify code generation plugin configuration ====
 
 for example plugin configuration for all 'org.abstractmeta.reflectify.example' package types  
 {{{
