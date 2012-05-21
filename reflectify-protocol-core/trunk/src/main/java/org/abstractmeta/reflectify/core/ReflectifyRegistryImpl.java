@@ -41,8 +41,8 @@ public class ReflectifyRegistryImpl implements ReflectifyRegistry {
     }
 
     @Override
-    public void register(ReflectifyProtocol reflectifyToolbox) {
-        reflectifyProtocols.put(reflectifyToolbox.getType(), reflectifyToolbox);
+    public void register(ReflectifyProtocol reflectifyProtocol) {
+        reflectifyProtocols.put(reflectifyProtocol.getType(), reflectifyProtocol);
     }
 
     @Override
