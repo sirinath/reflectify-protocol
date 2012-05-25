@@ -20,7 +20,7 @@ import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.core.CodeGeneratorImpl;
 import org.abstractmeta.code.g.core.config.builder.DescriptorBuilder;
 import org.abstractmeta.code.g.core.handler.SourceCompilerHandler;
-import org.abstractmeta.reflectify.ReflectifyProtocol;
+import org.abstractmeta.reflectify.Reflectify;
 import org.abstractmeta.reflectify.ReflectifyRegistry;
 import org.abstractmeta.reflectify.core.ReflectifyRegistryImpl;
 import org.abstractmeta.reflectify.plugin.ReflectifyGenerator;
@@ -28,6 +28,7 @@ import org.abstractmeta.reflectify.plugin.ReflectifyGenerator;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Provides runtime ReflectifyRegistry
@@ -54,13 +55,13 @@ public class ReflectifyRuntimeRegistry implements ReflectifyRegistry {
     }
 
     @Override
-    public void register(ReflectifyProtocol reflectifyProtocol) {
+    public void register(Reflectify reflectifyProtocol) {
         registry.register(reflectifyProtocol);
     }
 
     @Override
-    public void registerAll(Collection<ReflectifyProtocol> reflectifyProtocols) {
-        registry.registerAll(reflectifyProtocols);
+    public void registerAll(Collection<Reflectify> reflectify) {
+        registry.registerAll(reflectify);
     }
 
     @Override
@@ -79,24 +80,20 @@ public class ReflectifyRuntimeRegistry implements ReflectifyRegistry {
     }
 
     @Override
-    public <T> ReflectifyProtocol<T> get(Class<T> type) {
+    public <T> Reflectify<T> get(Class<T> type) {
         if (!isRegistered(type)) {
-            ReflectifyProtocol<T> protocol = load(type);
+            Reflectify<T> protocol = load(type);
             registry.register(protocol);
         }
         return registry.get(type);
     }
 
-    @Override
-    public Collection<ReflectifyProtocol> getReflectifyProtocols() {
-        return registry.getReflectifyProtocols();
+
+    public Map<Class, Reflectify> getRegistry() {
+        return registry.getRegistry();
     }
 
-    public ReflectifyRegistry getRegistry() {
-        return registry;
-    }
-
-    public <T> ReflectifyProtocol<T> load(Class<T> type) {
+    public <T> Reflectify<T> load(Class<T> type) {
         Descriptor descriptor = new DescriptorBuilder()
                 .setSourceClass(type.getName())
                 .setPlugin(ReflectifyGenerator.class.getName()).build();
@@ -107,10 +104,10 @@ public class ReflectifyRuntimeRegistry implements ReflectifyRegistry {
         try {
             Class generatedClass = classLoader.loadClass(generated.get(0));
             @SuppressWarnings("unchecked")
-            ReflectifyProtocol<T> result = (ReflectifyProtocol<T>) generatedClass.newInstance();
+            Reflectify<T> result = (Reflectify<T>) generatedClass.newInstance();
             return result;
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to load ReflectifyProtocol for " + type);
+            throw new IllegalStateException("Failed to load Reflectify for " + type);
         }
     }
 

@@ -15,7 +15,7 @@
  */
 package org.abstractmeta.reflectify.runtime;
 
-import org.abstractmeta.reflectify.ReflectifyProtocol;
+import org.abstractmeta.reflectify.Reflectify;
 import org.abstractmeta.reflectify.ReflectifyRegistry;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -26,13 +26,91 @@ public class ReflectifyRuntimeRegistryTest {
     public void testReflectifyRuntimeRegistry() {
         ReflectifyRegistry registry = new ReflectifyRuntimeRegistry();
         Assert.assertFalse(registry.isRegistered(Dept.class));
-        ReflectifyProtocol<Dept> deptReflectify = registry.get(Dept.class);
+        Reflectify<Dept> deptReflectify = registry.get(Dept.class);
         Assert.assertTrue(registry.isRegistered(Dept.class));
         Dept dept = deptReflectify.getProvider().get();
         deptReflectify.getMutator("name").set(dept, "name 1");
         Assert.assertEquals(dept.getName(), "name 1");
         dept.setId(12);
         Assert.assertEquals(deptReflectify.getAccessor("id").get(dept), 12);
+    }
+
+
+    public void testReflectifyRuntimeRegistryInnerClass() {
+        ReflectifyRegistry registry = new ReflectifyRuntimeRegistry();
+        Assert.assertFalse(registry.isRegistered(Employee.class));
+        Reflectify<Employee> empReflectify = registry.get(Employee.class);
+        Assert.assertTrue(registry.isRegistered(Employee.class));
+        Employee emp = empReflectify.getProvider().get();
+        empReflectify.getMutator("name").set(emp, "name 1");
+        Assert.assertEquals(emp.getName(), "name 1");
+        emp.setId(12);
+        Assert.assertEquals(empReflectify.getAccessor("id").get(emp), 12);
+    }
+
+
+    public static class Dept {
+        private int id;
+        private String name;
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
+
+    public static class Employee {
+        private int id;
+        private String name;
+        private Policy policy;
+        private Dept [] depds;
+
+        public Dept[] getDepds() {
+            return depds;
+        }
+
+        public void setDepds(Dept[] depds) {
+            this.depds = depds;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public Policy getPolicy() {
+            return policy;
+        }
+
+        public void setPolicy(Policy policy) {
+            this.policy = policy;
+        }
+    }
+
+    public static enum Policy {
+        BASIC, ADVANCE
     }
 
 }
