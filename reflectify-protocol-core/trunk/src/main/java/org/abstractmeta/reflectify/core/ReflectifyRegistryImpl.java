@@ -29,20 +29,20 @@ import java.util.Map;
  */
 public class ReflectifyRegistryImpl implements ReflectifyRegistry {
 
-    private final Map<Class, Reflectify> reflectifyProtocols;
+    private final Map<Class, Reflectify> registry;
 
 
     public ReflectifyRegistryImpl() {
         this(new HashMap<Class, Reflectify>());
     }
 
-    protected ReflectifyRegistryImpl(Map<Class, Reflectify> reflectifyProtocols) {
-        this.reflectifyProtocols = reflectifyProtocols;
+    protected ReflectifyRegistryImpl(Map<Class, Reflectify> registry) {
+        this.registry = registry;
     }
 
     @Override
     public void register(Reflectify reflectifyProtocol) {
-        reflectifyProtocols.put(reflectifyProtocol.getType(), reflectifyProtocol);
+        registry.put(reflectifyProtocol.getType(), reflectifyProtocol);
     }
 
     @Override
@@ -54,28 +54,29 @@ public class ReflectifyRegistryImpl implements ReflectifyRegistry {
 
     @Override
     public boolean isRegistered(Class type) {
-        return reflectifyProtocols.containsKey(type);
+        return registry.containsKey(type);
     }
 
     @Override
     public void unregister(Class type) {
-        reflectifyProtocols.remove(type);
+        registry.remove(type);
     }
 
     @Override
     public void unregisterAll() {
-        reflectifyProtocols.clear();
+        registry.clear();
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> Reflectify<T> get(Class<T> type) {
-        return (Reflectify<T>)reflectifyProtocols.get(type);
+        return (Reflectify<T>) registry.get(type);
     }
 
     @Override
-    public Collection<Reflectify> getReflectify() {
-        return reflectifyProtocols.values();
+    public Map<Class, Reflectify> getRegistry() {
+        return registry;
     }
+
 
 }
