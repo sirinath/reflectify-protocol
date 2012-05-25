@@ -17,6 +17,7 @@ package org.abstractmeta.reflectify;
 
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * Represents reflectify protocol registry.
@@ -28,7 +29,7 @@ public interface ReflectifyRegistry {
 
     void register(Reflectify reflectifyProtocol);
 
-    void registerAll(Collection<Reflectify> reflectifyProtocols);
+    void registerAll(Collection<Reflectify> reflectify);
 
     boolean isRegistered(Class type);
 
@@ -38,6 +39,6 @@ public interface ReflectifyRegistry {
 
     <T> Reflectify<T> get(Class<T> type);
 
-    Collection<Reflectify> getReflectifyProtocols();
+    Map<Class, Reflectify> getRegistry();
 
 }
