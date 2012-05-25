@@ -37,7 +37,7 @@ import org.abstractmeta.reflectify.*;
 import org.abstractmeta.reflectify.core.AbstractType;
 import org.abstractmeta.reflectify.core.AbstractMethodInvoker;
 import org.abstractmeta.reflectify.core.AbstractProvider;
-import org.abstractmeta.reflectify.core.AbstractReflectifyProtocol;
+import org.abstractmeta.reflectify.core.AbstractReflectify;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Joiner;
 
@@ -79,7 +79,7 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
         int nextToLastDotPosition = targetPackage.lastIndexOf('.', lastDotPosition - 3);
         String parentPackage = targetPackage.substring(nextToLastDotPosition + 1, lastDotPosition);
         String providerTypeName = targetPackage + "." + StringUtil.format(CaseFormat.UPPER_CAMEL, parentPackage, "reflectifyProvider", CaseFormat.LOWER_CAMEL);
-        Type resultType = new ParameterizedTypeImpl(null, Collection.class, ReflectifyProtocol.class);
+        Type resultType = new ParameterizedTypeImpl(null, Collection.class, Reflectify.class);
         registryTypeBuilder.addModifier("public").setTypeName(providerTypeName)
                 .addSuperInterface(new ParameterizedTypeImpl(null, Provider.class, resultType));
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder().addModifier("public")
@@ -89,7 +89,7 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
             registryTypeBuilder.addImportType(new TypeNameWrapper(generatedType));
             generatedTypes.add("\n    new " + JavaTypeUtil.getSimpleClassName(generatedType) + "()");
         }
-        methodBuilder.addBody(String.format("return Arrays.<%s>asList(%s);", ReflectifyProtocol.class.getSimpleName(), Joiner.on(",").join(generatedTypes)));
+        methodBuilder.addBody(String.format("return Arrays.<%s>asList(%s);", Reflectify.class.getSimpleName(), Joiner.on(",").join(generatedTypes)));
         registryTypeBuilder.addMethod(methodBuilder.build());
         registry.register(registryTypeBuilder.build());
         result.add(registryTypeBuilder.getName());
@@ -107,7 +107,7 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
         JavaTypeBuilder protoBuilder = new JavaTypeBuilder();
         protoBuilder.addModifier("public");
         protoBuilder.setTypeName(targetTypeName);
-        protoBuilder.setSuperType(new ParameterizedTypeImpl(null, AbstractReflectifyProtocol.class, reflectifyType));
+        protoBuilder.setSuperType(new ParameterizedTypeImpl(null, AbstractReflectify.class, reflectifyType));
         protoBuilder.addConstructor(new JavaConstructorBuilder().addModifier("public").setName(protoBuilder.getSimpleName()).addBody("super(" + classSimpleName + ".class);").build());
         List<JavaMethod> methods = sourceType.getMethods();
         generateAccessors(protoBuilder, methods, reflectifyType);
@@ -121,7 +121,7 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
         Map<String, Integer> providerCounter = new HashMap<String, Integer>();
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
         methodBuilder.addModifier("protected").setName("registerProviders").setResultType(void.class);
-        methodBuilder.addParameter("providers", new ParameterizedTypeImpl(null, List.class, new ParameterizedTypeImpl(null, ReflectifyProtocol.Provider.class, reflectifyType)));
+        methodBuilder.addParameter("providers", new ParameterizedTypeImpl(null, List.class, new ParameterizedTypeImpl(null, Reflectify.Provider.class, reflectifyType)));
         methodBuilder.addBody("\n");
         if (sourceType.getConstructors() == null) {
             return;
@@ -134,7 +134,7 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
             String providerClassName = StringUtil.format(CaseFormat.UPPER_CAMEL, sourceType.getSimpleName(), "provider" + constructorCounterPostfix, CaseFormat.LOWER_CAMEL);
             JavaTypeBuilder providerClassBuilder = methodBuilder.addNestedJavaType();
             providerClassBuilder.setName(providerClassName).addSuperInterface(
-                    new ParameterizedTypeImpl(null, ReflectifyProtocol.Provider.class, reflectifyType));
+                    new ParameterizedTypeImpl(null, Reflectify.Provider.class, reflectifyType));
             String parameters = Joiner.on(", ").join(getArgumentClasses(constructor.getParameterTypes()));
             if(! parameters.isEmpty()) parameters = ", " + parameters;
             providerClassBuilder.addConstructor(new JavaConstructorBuilder().setName(providerClassName).addBody(String.format("super(%s.class%s);",
