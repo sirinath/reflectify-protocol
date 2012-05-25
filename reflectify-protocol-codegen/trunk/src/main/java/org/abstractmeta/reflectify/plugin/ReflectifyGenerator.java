@@ -62,6 +62,7 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
     protected String getTargetTypeName(JavaType sourceType, Descriptor descriptor, JavaTypeRegistry registry) {
         String buildResultTypeName = JavaTypeUtil.getSuperTypeName(sourceType);
         String buildResultSimpleClassName = JavaTypeUtil.getSimpleClassName(buildResultTypeName, true);
+        buildResultSimpleClassName = buildResultSimpleClassName.replace(".", "");
         return getTargetTypeName(buildResultSimpleClassName, descriptor, registry);
     }
 
@@ -73,7 +74,7 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
         registryTypeBuilder.addImportType(Arrays.class);
         String targetPackage = descriptor.getTargetPackage();
         if(targetPackage == null) {
-            targetPackage = StringUtil.substringBeforeLastIndexOf(descriptor.getSourceClass(), ".");
+            targetPackage = StringUtil.substringBeforeLastIndexOf(descriptor.getSourcePackage(), ".");
         }
         int lastDotPosition = targetPackage.lastIndexOf('.');
         int nextToLastDotPosition = targetPackage.lastIndexOf('.', lastDotPosition - 3);
@@ -87,7 +88,7 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
         List<String> generatedTypes = new ArrayList<String>();
         for (String generatedType : result) {
             registryTypeBuilder.addImportType(new TypeNameWrapper(generatedType));
-            generatedTypes.add("\n    new " + JavaTypeUtil.getSimpleClassName(generatedType) + "()");
+            generatedTypes.add("\n    new " + JavaTypeUtil.getSimpleClassName(generatedType, true) + "()");
         }
         methodBuilder.addBody(String.format("return Arrays.<%s>asList(%s);", Reflectify.class.getSimpleName(), Joiner.on(",").join(generatedTypes)));
         registryTypeBuilder.addMethod(methodBuilder.build());
@@ -103,17 +104,30 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
     @Override
     protected JavaTypeBuilder generateType(JavaType sourceType, JavaTypeRegistry registry,String targetTypeName, Descriptor descriptor) {
         Type reflectifyType = new TypeNameWrapper(sourceType.getName());
-        String classSimpleName = JavaTypeUtil.getSimpleClassName(sourceType.getName());
+        String classSimpleName = JavaTypeUtil.getSimpleClassName(sourceType.getName(), true);
         JavaTypeBuilder protoBuilder = new JavaTypeBuilder();
         protoBuilder.addModifier("public");
         protoBuilder.setTypeName(targetTypeName);
         protoBuilder.setSuperType(new ParameterizedTypeImpl(null, AbstractReflectify.class, reflectifyType));
+
+
         protoBuilder.addConstructor(new JavaConstructorBuilder().addModifier("public").setName(protoBuilder.getSimpleName()).addBody("super(" + classSimpleName + ".class);").build());
         List<JavaMethod> methods = sourceType.getMethods();
         generateAccessors(protoBuilder, methods, reflectifyType);
         generateMutators(protoBuilder, methods, reflectifyType);
         generateMethodInvokers(protoBuilder, methods, reflectifyType);
         generateProviders(protoBuilder, sourceType, reflectifyType);
+        
+        if(sourceType.getName().indexOf('$') != -1) {
+            String innerType = sourceType.getName().replace('$', '.');
+            protoBuilder.addImportType(new TypeNameWrapper(innerType));
+            String ownerType = StringUtil.substringBeforeLastIndexOf(sourceType.getName(), "$");
+            protoBuilder.addImportType(new TypeNameWrapper(ownerType));
+  
+        } else {
+
+            protoBuilder.addImportType(new TypeNameWrapper(sourceType.getName()));
+        }
         return protoBuilder;
     }
 
@@ -130,21 +144,24 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
             return;
         }
         for (JavaConstructor constructor : sourceType.getConstructors()) {
-            String constructorCounterPostfix = getOccurrence(providerCounter, sourceType.getSimpleName());
-            String providerClassName = StringUtil.format(CaseFormat.UPPER_CAMEL, sourceType.getSimpleName(), "provider" + constructorCounterPostfix, CaseFormat.LOWER_CAMEL);
+            String sourceTypeSimpleName = JavaTypeUtil.getSimpleClassName(sourceType.getName(), true);
+
+
+            String constructorCounterPostfix = getOccurrence(providerCounter,  JavaTypeUtil.getSimpleClassName(sourceType.getName(), false));
+            String providerClassName = StringUtil.format(CaseFormat.UPPER_CAMEL, JavaTypeUtil.getSimpleClassName(sourceType.getName(), false), "provider" + constructorCounterPostfix, CaseFormat.LOWER_CAMEL);
             JavaTypeBuilder providerClassBuilder = methodBuilder.addNestedJavaType();
             providerClassBuilder.setName(providerClassName).addSuperInterface(
                     new ParameterizedTypeImpl(null, Reflectify.Provider.class, reflectifyType));
             String parameters = Joiner.on(", ").join(getArgumentClasses(constructor.getParameterTypes()));
             if(! parameters.isEmpty()) parameters = ", " + parameters;
             providerClassBuilder.addConstructor(new JavaConstructorBuilder().setName(providerClassName).addBody(String.format("super(%s.class%s);",
-                    sourceType.getSimpleName(), parameters)).build());
+                    sourceTypeSimpleName, parameters)).build());
             providerClassBuilder.setSuperType(AbstractProvider.class);
-            buildArgumentSetterClasses(providerClassBuilder, reflectifyType, sourceType.getSimpleName(), constructor.getParameterTypes());
+            buildArgumentSetterClasses(providerClassBuilder, reflectifyType, sourceTypeSimpleName, constructor.getParameterTypes());
             methodBuilder.addBody(String.format(String.format("providers.add(new %s());", providerClassName)));
             JavaMethodBuilder getMethodProvider = new JavaMethodBuilder().addModifier("public").setName("get").setResultType(reflectifyType);
             String constructorParameters = Joiner.on(", ").join(getArgumentSetterMethodArgumentNames(constructor.getParameterTypes()));
-            getMethodProvider.addBody(String.format("return new %s(%s);", sourceType.getSimpleName(), constructorParameters));
+            getMethodProvider.addBody(String.format("return new %s(%s);", sourceTypeSimpleName, constructorParameters));
             providerClassBuilder.addMethod(getMethodProvider.build());
         }
         typeBuilder.addMethod(methodBuilder.build());
@@ -236,13 +253,16 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
     protected List<String> getArgumentClasses(List<Type> types) {
         List<String> result = new ArrayList<String>();
         for (Type type : types) {
+            String typeName;
             if (type instanceof TypeNameWrapper) {
-                String simpleClassName = JavaTypeUtil.getSimpleClassName(TypeNameWrapper.class.cast(type).getTypeName());
-                result.add(simpleClassName + ".class");
+                typeName = TypeNameWrapper.class.cast(type).getTypeName();
 
             } else {
-                result.add(ReflectUtil.getRawClass(type).getSimpleName() + ".class");
+                typeName = ReflectUtil.getRawClass(type).getName();
             }
+            
+            System.out.println("---- + " + typeName);
+            result.add(JavaTypeUtil.getSimpleClassName(typeName, true)  + ".class");
 
         }
         return result;
@@ -316,9 +336,9 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
             accessorBuilder.addBody("return instance." + methodName + "();");
             String fieldSimpleName;
             if (fieldRawClass.isArray()) {
-                fieldSimpleName = fieldRawClass.getComponentType().getSimpleName() + " []";
+                fieldSimpleName = JavaTypeUtil.getSimpleClassName(fieldRawClass.getComponentType().getName(), true) + " []";
             } else {
-                fieldSimpleName = fieldRawClass.getSimpleName();
+                fieldSimpleName = JavaTypeUtil.getSimpleClassName(fieldRawClass.getName(), true);
             }
 
             nestedClassBuilder.addMethod(accessorBuilder.build());
