@@ -21,13 +21,13 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Represents ReflectifyProtocol.
+ * Represents Reflectify.
  * It provides api for reflective data system.
  *
  * @author Adrian Witas
  */
 
-public interface ReflectifyProtocol<I> {
+public interface Reflectify<I> {
 
     Class<I> getType();
 
