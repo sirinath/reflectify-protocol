@@ -46,8 +46,8 @@ public class ReflectifyRegistryImpl implements ReflectifyRegistry {
     }
 
     @Override
-    public void registerAll(Collection<Reflectify> reflectifyProtocols) {
-        for (Reflectify protocol : reflectifyProtocols) {
+    public void registerAll(Collection<Reflectify> reflectify) {
+        for (Reflectify protocol : reflectify) {
             register(protocol);
         }
     }
@@ -74,7 +74,7 @@ public class ReflectifyRegistryImpl implements ReflectifyRegistry {
     }
 
     @Override
-    public Collection<Reflectify> getReflectifys() {
+    public Collection<Reflectify> getReflectify() {
         return reflectifyProtocols.values();
     }
 
