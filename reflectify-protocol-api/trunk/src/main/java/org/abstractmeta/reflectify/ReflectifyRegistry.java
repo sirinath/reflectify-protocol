@@ -16,7 +16,6 @@
 package org.abstractmeta.reflectify;
 
 
-import java.lang.reflect.Type;
 import java.util.Collection;
 
 /**
@@ -27,9 +26,9 @@ import java.util.Collection;
 
 public interface ReflectifyRegistry {
 
-    void register(ReflectifyProtocol reflectifyProtocol);
+    void register(Reflectify reflectifyProtocol);
 
-    void registerAll(Collection<ReflectifyProtocol> reflectifyProtocols);
+    void registerAll(Collection<Reflectify> reflectifyProtocols);
 
     boolean isRegistered(Class type);
 
@@ -37,8 +36,8 @@ public interface ReflectifyRegistry {
 
      void unregisterAll();
 
-    <T> ReflectifyProtocol<T> get(Class<T> type);
+    <T> Reflectify<T> get(Class<T> type);
 
-    Collection<ReflectifyProtocol> getReflectifyProtocols();
+    Collection<Reflectify> getReflectifyProtocols();
 
 }
