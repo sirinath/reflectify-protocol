@@ -32,7 +32,7 @@ public class AbstractObjectProtocolTest {
     
     
     public void testAbstractObjectProtocol() {
-        ReflectifyProtocol<Foo> fooProtocol = new FooReflectifyProtocol();
+        Reflectify<Foo> fooProtocol = new FooReflectify();
         Foo foo = fooProtocol.getProvider().get();
         fooProtocol.getMutator(Integer.class, "id").set(foo, 10);
         Assert.assertEquals(foo.getId(), 10);
@@ -48,9 +48,9 @@ public class AbstractObjectProtocolTest {
    
     
     
-    public static class FooReflectifyProtocol extends AbstractReflectifyProtocol<Foo> {
+    public static class FooReflectify extends AbstractReflectify<Foo> {
 
-        protected FooReflectifyProtocol() {
+        protected FooReflectify() {
             super(Foo.class);
         }
 
