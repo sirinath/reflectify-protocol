@@ -15,7 +15,7 @@
  */
 package org.abstractmeta.reflectify.core;
 
-import org.abstractmeta.reflectify.ReflectifyProtocol;
+import org.abstractmeta.reflectify.Reflectify;
 import org.abstractmeta.reflectify.ReflectifyRegistry;
 
 import java.util.Collection;
@@ -29,25 +29,25 @@ import java.util.Map;
  */
 public class ReflectifyRegistryImpl implements ReflectifyRegistry {
 
-    private final Map<Class, ReflectifyProtocol> reflectifyProtocols;
+    private final Map<Class, Reflectify> reflectifyProtocols;
 
 
     public ReflectifyRegistryImpl() {
-        this(new HashMap<Class, ReflectifyProtocol>());
+        this(new HashMap<Class, Reflectify>());
     }
 
-    protected ReflectifyRegistryImpl(Map<Class, ReflectifyProtocol> reflectifyProtocols) {
+    protected ReflectifyRegistryImpl(Map<Class, Reflectify> reflectifyProtocols) {
         this.reflectifyProtocols = reflectifyProtocols;
     }
 
     @Override
-    public void register(ReflectifyProtocol reflectifyProtocol) {
+    public void register(Reflectify reflectifyProtocol) {
         reflectifyProtocols.put(reflectifyProtocol.getType(), reflectifyProtocol);
     }
 
     @Override
-    public void registerAll(Collection<ReflectifyProtocol> reflectifyProtocols) {
-        for (ReflectifyProtocol protocol : reflectifyProtocols) {
+    public void registerAll(Collection<Reflectify> reflectifyProtocols) {
+        for (Reflectify protocol : reflectifyProtocols) {
             register(protocol);
         }
     }
@@ -69,12 +69,12 @@ public class ReflectifyRegistryImpl implements ReflectifyRegistry {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> ReflectifyProtocol<T> get(Class<T> type) {
-        return (ReflectifyProtocol<T>)reflectifyProtocols.get(type);
+    public <T> Reflectify<T> get(Class<T> type) {
+        return (Reflectify<T>)reflectifyProtocols.get(type);
     }
 
     @Override
-    public Collection<ReflectifyProtocol> getReflectifyProtocols() {
+    public Collection<Reflectify> getReflectifys() {
         return reflectifyProtocols.values();
     }
 

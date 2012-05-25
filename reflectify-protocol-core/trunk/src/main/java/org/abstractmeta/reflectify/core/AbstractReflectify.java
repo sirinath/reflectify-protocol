@@ -18,7 +18,7 @@ package org.abstractmeta.reflectify.core;
 import org.abstractmeta.reflectify.Accessor;
 import org.abstractmeta.reflectify.MethodInvoker;
 import org.abstractmeta.reflectify.Mutator;
-import org.abstractmeta.reflectify.ReflectifyProtocol;
+import org.abstractmeta.reflectify.Reflectify;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ import java.util.Map;
  *
  * @author Adrian Witas
  */
-public abstract class AbstractReflectifyProtocol<I> implements ReflectifyProtocol<I> {
+public abstract class AbstractReflectify<I> implements Reflectify<I> {
 
     
     private final Class<I> type;
@@ -46,7 +46,7 @@ public abstract class AbstractReflectifyProtocol<I> implements ReflectifyProtoco
 
     private final List<String> methodNames;
 
-    protected AbstractReflectifyProtocol(Class<I> type) {
+    protected AbstractReflectify(Class<I> type) {
         this.type = type;
         this.fieldNames = new ArrayList<String>();
         this.methodNames = new ArrayList<String>();
