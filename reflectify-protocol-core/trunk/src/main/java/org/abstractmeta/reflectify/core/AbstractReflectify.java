@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public abstract class AbstractReflectify<I> implements Reflectify<I> {
 
-    
+
     private final Class<I> type;
     private final Map<String, Mutator<I, Object>> mutators;
     private final Map<String, Accessor<I, Object>> accessors;
@@ -41,7 +41,7 @@ public abstract class AbstractReflectify<I> implements Reflectify<I> {
     private final List<Provider<I>> providers;
 
     private final List<String> fieldNames;
-    
+
     private final Map<String, Class> fieldTypes;
 
     private final List<String> methodNames;
@@ -65,8 +65,8 @@ public abstract class AbstractReflectify<I> implements Reflectify<I> {
 
     protected abstract void registerProviders(List<Provider<I>> result);
 
-    protected Map<String,List<MethodInvoker<I, Object>>> getMethods() {
-        Map<String,List<MethodInvoker<I, Object>>> result = new HashMap<String, List<MethodInvoker<I, Object>>>();
+    protected Map<String, List<MethodInvoker<I, Object>>> getMethods() {
+        Map<String, List<MethodInvoker<I, Object>>> result = new HashMap<String, List<MethodInvoker<I, Object>>>();
         registerMethodInvokers(result);
         return result;
     }
@@ -77,8 +77,8 @@ public abstract class AbstractReflectify<I> implements Reflectify<I> {
     @SuppressWarnings("unchecked")
     protected void register(Map<String, List<MethodInvoker<I, Object>>> methods, String methodName, MethodInvoker methodExecutor) {
         List<MethodInvoker<I, Object>> methodForThisName = methods.get(methodName);
-        if(methodForThisName == null) {
-            methodForThisName  = new ArrayList<MethodInvoker<I, Object>>();
+        if (methodForThisName == null) {
+            methodForThisName = new ArrayList<MethodInvoker<I, Object>>();
             methods.put(methodName, methodForThisName);
         }
         methodNames.add(methodName);
@@ -86,8 +86,8 @@ public abstract class AbstractReflectify<I> implements Reflectify<I> {
     }
 
 
-    protected Map<String,Accessor<I, Object>> getAccessors() {
-        Map<String,Accessor<I, Object>> result =  new HashMap<String, Accessor<I, Object>>();
+    protected Map<String, Accessor<I, Object>> getAccessors() {
+        Map<String, Accessor<I, Object>> result = new HashMap<String, Accessor<I, Object>>();
         registerAccessors(result);
         return result;
     }
@@ -101,8 +101,8 @@ public abstract class AbstractReflectify<I> implements Reflectify<I> {
         this.fieldTypes.put(fieldName, fieldType);
     }
 
-    protected  Map<String,Mutator<I, Object>> getMutator() {
-        Map<String,Mutator<I, Object>> result =  new HashMap<String, Mutator<I, Object>>();
+    protected Map<String, Mutator<I, Object>> getMutator() {
+        Map<String, Mutator<I, Object>> result = new HashMap<String, Mutator<I, Object>>();
         registerMutators(result);
         return result;
     }
@@ -123,10 +123,10 @@ public abstract class AbstractReflectify<I> implements Reflectify<I> {
     @SuppressWarnings("unchecked")
     public <T> MethodInvoker<I, T> getMethodInvoker(Class<T> methodResultType, String methodName, Class... argumentTypes) {
         MethodInvoker<I, Object> result = getMethodInvoker(methodName, argumentTypes);
-        if(result == null) {
+        if (result == null) {
             return null;
         }
-        return (MethodInvoker<I, T>)result;
+        return (MethodInvoker<I, T>) result;
     }
 
 
@@ -134,13 +134,28 @@ public abstract class AbstractReflectify<I> implements Reflectify<I> {
     @SuppressWarnings("unchecked")
     public MethodInvoker<I, Object> getMethodInvoker(String methodName, Class... argumentTypes) {
         List<MethodInvoker<I, Object>> resultCandidate = methods.get(methodName);
-        if(resultCandidate.size() == 1) {
+        if (resultCandidate.size() == 1) {
             return resultCandidate.get(0);
         }
         String key = getMethodArguments(argumentTypes);
-        for(MethodInvoker executorCandidate: resultCandidate) {
+        for (MethodInvoker executorCandidate : resultCandidate) {
             String candidateKey = getMethodArguments(executorCandidate.getGenericParameterTypes());
-            if(key.equals(candidateKey)) {
+            if (key.equals(candidateKey)) {
+                return executorCandidate;
+            }
+        }
+        for (MethodInvoker executorCandidate : resultCandidate) {
+            if (executorCandidate.getParameterTypes().length != argumentTypes.length) continue;
+            int i = 0;
+            boolean match = true;
+            for (Class parameters : executorCandidate.getParameterTypes()) {
+                Class argumentType = argumentTypes[i++];
+                if (!parameters.isAssignableFrom(argumentType)) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) {
                 return executorCandidate;
             }
         }
@@ -148,14 +163,13 @@ public abstract class AbstractReflectify<I> implements Reflectify<I> {
     }
 
 
-
     @Override
     @SuppressWarnings("unchecked")
     public Provider<I> getProvider(Class... argumentTypes) {
         String key = getMethodArguments(argumentTypes);
-        for(Provider<I> executorCandidate: providers) {
+        for (Provider<I> executorCandidate : providers) {
             String candidateKey = getMethodArguments(executorCandidate.getGenericParameterTypes());
-            if(key.equals(candidateKey)) {
+            if (key.equals(candidateKey)) {
                 return executorCandidate;
             }
         }
@@ -165,17 +179,17 @@ public abstract class AbstractReflectify<I> implements Reflectify<I> {
 
     @Override
     public List<MethodInvoker<I, Object>> getMethodInvokers(String methodName) {
-       return methods.get(methodName);
+        return methods.get(methodName);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> Accessor<I, T> getAccessor(Class<T> fieldType, String fieldName) {
         Accessor<I, Object> result = accessors.get(fieldName);
-        if(result == null) {
+        if (result == null) {
             return null;
         }
-        return (Accessor<I, T>)result;
+        return (Accessor<I, T>) result;
     }
 
     @Override
@@ -187,10 +201,10 @@ public abstract class AbstractReflectify<I> implements Reflectify<I> {
     @SuppressWarnings("unchecked")
     public <T> Mutator<I, T> getMutator(Class<T> fieldType, String fieldName) {
         Mutator<I, Object> result = mutators.get(fieldName);
-        if(result == null) {
+        if (result == null) {
             return null;
         }
-        return (Mutator<I, T> )result;
+        return (Mutator<I, T>) result;
     }
 
     @Override
@@ -203,7 +217,7 @@ public abstract class AbstractReflectify<I> implements Reflectify<I> {
     public List<String> getFieldNames() {
         return fieldNames;
     }
-    
+
     public Class getFieldType(String fieldName) {
         return fieldTypes.get(fieldName);
     }
@@ -213,24 +227,22 @@ public abstract class AbstractReflectify<I> implements Reflectify<I> {
         return methodNames;
     }
 
-    protected String getMethodArguments(Class [] types) {
+    protected String getMethodArguments(Class[] types) {
         StringBuilder result = new StringBuilder();
-        for(Class type: types) {
+        for (Class type : types) {
             result.append(type);
         }
         return result.toString();
     }
 
 
-    protected String getMethodArguments(Type [] types) {
+    protected String getMethodArguments(Type[] types) {
         StringBuilder result = new StringBuilder();
-        for(Type type: types) {
+        for (Type type : types) {
             result.append(type.toString());
         }
         return result.toString();
     }
-
-
 
 
 }
