@@ -1,5 +1,21 @@
+/**
+ * Copyright 2011 Adrian Witas
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.abstractmeta.reflectify.plugin;
 
+import com.sun.tools.apt.util.Bark;
 import org.abstractmeta.code.g.code.JavaType;
 import org.abstractmeta.code.g.code.JavaTypeImporter;
 import org.abstractmeta.code.g.code.JavaTypeRegistry;
@@ -13,6 +29,7 @@ import org.abstractmeta.code.g.renderer.JavaTypeRenderer;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,8 +56,62 @@ public class ReflectifyGeneratorTest {
             String code = renderer.render(builtType, importer, 0);
             Assert.assertNotNull(code);
     }
+
+
+    public void testReflectifyWithListGenerator() {
+        ReflectifyGenerator generator = new ReflectifyGenerator();
+        JavaTypeRegistry registry = new JavaTypeRegistryImpl();
+        JavaType javaType = new ClassTypeProvider(List.class).get();
+        registry.register(javaType);
+        Descriptor descriptor = new DescriptorBuilder()
+                .setSourceClass(List.class.getName())
+                .setSourcePackage(List.class.getPackage().getName())
+                .setPlugin(ReflectifyGenerator.class.getName())
+                .build();
+        List<String> build = generator.generate(Arrays.asList(javaType.getName()), registry, descriptor);
+        String typeName = build.get(0);
+        JavaType builtType = registry.get(typeName);
+        JavaTypeRenderer renderer = new TypeRenderer();
+        JavaTypeImporter importer = new JavaTypeImporterImpl(Employee.class.getPackage().getName() + ".reflectify");
+        String code = renderer.render(builtType, importer, 0);
+        Assert.assertNotNull(code,  "");
+    }
+
+
+    public void testReflectifyWithExceptionSupportGenerator() {
+        ReflectifyGenerator generator = new ReflectifyGenerator();
+        JavaTypeRegistry registry = new JavaTypeRegistryImpl();
+        JavaType javaType = new ClassTypeProvider(Bar.class).get();
+        registry.register(javaType);
+        Descriptor descriptor = new DescriptorBuilder()
+                .setSourceClass(Bar.class.getName())
+                .setSourcePackage(Bar.class.getPackage().getName())
+                .setPlugin(ReflectifyGenerator.class.getName())
+                .build();
+        List<String> build = generator.generate(Arrays.asList(javaType.getName()), registry, descriptor);
+        String typeName = build.get(0);
+        JavaType builtType = registry.get(typeName);
+        JavaTypeRenderer renderer = new TypeRenderer();
+        JavaTypeImporter importer = new JavaTypeImporterImpl(Bar.class.getPackage().getName() + ".reflectify");
+        String code = renderer.render(builtType, importer, 0);
+        Assert.assertNotNull(code,  "");
+    }
+
     
     
+
+    public static class Bar {
+       
+        public Bar() throws Exception {
+
+        }
+        
+        public void foo() throws IOException {
+            
+        }
+        
+    }
+
     public static class Dept {
         private int id;
         private String name;
