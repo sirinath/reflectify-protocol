@@ -15,10 +15,7 @@
  */
 package org.abstractmeta.reflectify.plugin;
 
-import org.abstractmeta.code.g.code.JavaConstructor;
-import org.abstractmeta.code.g.code.JavaMethod;
-import org.abstractmeta.code.g.code.JavaType;
-import org.abstractmeta.code.g.code.JavaTypeRegistry;
+import org.abstractmeta.code.g.code.*;
 import org.abstractmeta.code.g.core.code.builder.JavaConstructorBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
@@ -43,6 +40,7 @@ import com.google.common.base.Joiner;
 
 import javax.inject.Provider;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.*;
 
 /**
@@ -94,6 +92,7 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
         registryTypeBuilder.addMethod(methodBuilder.build());
         registry.register(registryTypeBuilder.build());
         result.add(registryTypeBuilder.getName());
+        
     }
 
     @Override
@@ -128,7 +127,7 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
 
             protoBuilder.addImportType(new TypeNameWrapper(sourceType.getName()));
         }
-        return protoBuilder;
+       return protoBuilder;
     }
 
     private void generateProviders(JavaTypeBuilder typeBuilder, JavaType sourceType, Type reflectifyType) {
@@ -161,7 +160,18 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
             methodBuilder.addBody(String.format(String.format("providers.add(new %s());", providerClassName)));
             JavaMethodBuilder getMethodProvider = new JavaMethodBuilder().addModifier("public").setName("get").setResultType(reflectifyType);
             String constructorParameters = Joiner.on(", ").join(getArgumentSetterMethodArgumentNames(constructor.getParameterTypes()));
-            getMethodProvider.addBody(String.format("return new %s(%s);", sourceTypeSimpleName, constructorParameters));
+            boolean exceptionHandling = constructor.getExceptionTypes() != null && !  constructor.getExceptionTypes().isEmpty();
+
+            if(exceptionHandling) {
+                getMethodProvider.addBody("try {");
+            }
+            getMethodProvider.addBody((exceptionHandling ? "    " : "") + String.format("return new %s(%s);", sourceTypeSimpleName, constructorParameters));
+            if(exceptionHandling) {
+                getMethodProvider.addBody("} catch(Exception e) {");
+                getMethodProvider.addBody(String.format("    throw new RuntimeException(\"Failed to instantiate %s\", e);", sourceTypeSimpleName));
+                getMethodProvider.addBody("}");
+            }
+
             providerClassBuilder.addMethod(getMethodProvider.build());
         }
         typeBuilder.addMethod(methodBuilder.build());
@@ -171,6 +181,7 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
     protected void generateMethodInvokers(JavaTypeBuilder typeBuilder, List<JavaMethod> methods, Type reflectifyType) {
         Map<String, Integer> methodCounter = new HashMap<String, Integer>();
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
+        methodBuilder.addAnnotation(new SuppressWarningsImpl("unchecked"));
         methodBuilder.addModifier("protected").setName("registerMethodInvokers").setResultType(void.class);
         methodBuilder.addParameter("methods", new ParameterizedTypeImpl(null, Map.class, String.class,
                 new ParameterizedTypeImpl(null, List.class, new ParameterizedTypeImpl(null, MethodInvoker.class, reflectifyType, Object.class))));
@@ -182,7 +193,8 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
             String methodName = method.getName();
             String methodInvokerTypeNamePostfix = getOccurrence(methodCounter, methodName);
             String methodInvokerClassName = StringUtil.format(CaseFormat.UPPER_CAMEL, methodName, "invoker" + methodInvokerTypeNamePostfix, CaseFormat.LOWER_CAMEL);
-            buildMethodInvokerType(methodBuilder, methodName, methodInvokerClassName, ReflectUtil.getObjectType(method.getResultType()), method.getParameterTypes(), reflectifyType);
+            boolean exceptionHandling = method.getExceptionTypes() != null && !  method.getExceptionTypes().isEmpty();
+            buildMethodInvokerType(methodBuilder, methodName, methodInvokerClassName, ReflectUtil.getObjectType(method.getResultType()), method.getParameterTypes(), reflectifyType, exceptionHandling);
             methodBuilder.addBody(String.format(String.format("register(methods, \"%s\", new %s());", methodName, methodInvokerClassName)));
 
         }
@@ -193,17 +205,17 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
     protected void buildArgumentSetterClasses(JavaTypeBuilder typeBuilder, Type reflectifyType, String name, List<Type> parameterType) {
         JavaMethodBuilder parameterSetterMethod = new JavaMethodBuilder();
         parameterSetterMethod.addAnnotation(new SuppressWarningsImpl("unchecked"));
-        parameterSetterMethod.setName("getParameterSetter").addModifier("public").addModifier("<T>")
-                .setResultType(new ParameterizedTypeImpl(null, ParameterSetter.class, new TypeVariableImpl("T")));
+        parameterSetterMethod.setName("getParameterSetter").addModifier("public").addModifier("<RP>")
+                .setResultType(new ParameterizedTypeImpl(null, ParameterSetter.class, new TypeVariableImpl("RP")));
 
         buildArgumentSetter(typeBuilder, parameterSetterMethod, name, parameterType, reflectifyType);
-        parameterSetterMethod.addParameter("parameterType", new ParameterizedTypeImpl(null, Class.class, new TypeVariableImpl("T")));
+        parameterSetterMethod.addParameter("parameterType", new ParameterizedTypeImpl(null, Class.class, new TypeVariableImpl("RP")));
         parameterSetterMethod.addParameter("parameterIndex", int.class);
         typeBuilder.addMethod(parameterSetterMethod.build());
     }
 
 
-    protected void buildMethodInvokerType(JavaMethodBuilder methodBuilder, String methodName, String methodInvokerClassName, Type resultType, List<Type> parameterTypes, Type reflectifyType) {
+    protected void buildMethodInvokerType(JavaMethodBuilder methodBuilder, String methodName, String methodInvokerClassName, Type resultType, List<Type> parameterTypes, Type reflectifyType, boolean exceptionHandling) {
         JavaTypeBuilder invokerClassBuilder = methodBuilder.addNestedJavaType();
         invokerClassBuilder.setName(methodInvokerClassName).setSuperType(AbstractMethodInvoker.class);
         List<String> superTypeConstructorArguments = new ArrayList<String>(Arrays.asList("getType()", "\"" + methodName + "\""));
@@ -217,14 +229,39 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
         methodInvokerClassBuilder.addParameter("instance", reflectifyType);
         buildArgumentSetterClasses(invokerClassBuilder, reflectifyType, methodName, parameterTypes);
         String invokeMethodArgumentLiteral = Joiner.on(", ").join(getArgumentSetterMethodArgumentNames(parameterTypes));
+        Set<Type> genericTypes = new HashSet<Type>();
+        if(exceptionHandling) {
+            methodInvokerClassBuilder.addBody("try {");
+        }
+        String bodyIndent = (exceptionHandling ? "    " : "");
         if (Void.class.equals(resultType)) {
-            methodInvokerClassBuilder.addBody(String.format("instance.%s(%s);", methodName, invokeMethodArgumentLiteral));
-            methodInvokerClassBuilder.addBody("return null;");
+            methodInvokerClassBuilder.addBody(bodyIndent + String.format("instance.%s(%s);", methodName, invokeMethodArgumentLiteral));
+            methodInvokerClassBuilder.addBody(bodyIndent + "return null;");
         } else {
-            methodInvokerClassBuilder.addBody(String.format("return instance.%s(%s);", methodName, invokeMethodArgumentLiteral));
+            Set<Type> resultVariableType = ReflectUtil.getTypeVariables(resultType);
+            genericTypes.addAll(resultVariableType);
+            String cast  = resultVariableType.size() > 0 ? "(" + resultType.toString() + ")" :"";
+            methodInvokerClassBuilder.addBody(bodyIndent+ String.format("return %sinstance.%s(%s);", cast, methodName, invokeMethodArgumentLiteral));
 
         }
+        if(exceptionHandling) {
+            methodInvokerClassBuilder.addBody("} catch(Exception e) {");
+            methodInvokerClassBuilder.addBody(String.format("    throw new RuntimeException(\"Failed to invoke %s\", e);", methodName));
+            methodInvokerClassBuilder.addBody("}");
+        }
+
         invokerClassBuilder.addMethod(methodInvokerClassBuilder.build());
+       for(JavaField field: invokerClassBuilder.getFields()) {
+            Type fieldType = field.getType();
+            genericTypes.addAll(ReflectUtil.getTypeVariables(fieldType));
+            invokerClassBuilder.getGenericTypeVariables().put(fieldType.toString(), Object.class);
+
+        }
+
+
+
+        invokerClassBuilder.addGenericTypeArguments(genericTypes);
+
     }
 
 
@@ -260,8 +297,6 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
             } else {
                 typeName = ReflectUtil.getRawClass(type).getName();
             }
-            
-            System.out.println("---- + " + typeName);
             result.add(JavaTypeUtil.getSimpleClassName(typeName, true)  + ".class");
 
         }
@@ -286,7 +321,7 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
                 methodBuilder.addParameter("value", fileType);
                 methodBuilder.addBody(fieldName + " = value;");
                 parameterSetterClass.addMethod(methodBuilder.build());
-                parameterSetterMethod.addBody("    case   " + i + ": return (ParameterSetter<T>) new " + parameterSetterClassName + "();");
+                parameterSetterMethod.addBody("    case   " + i + ": return (ParameterSetter<RP>) new " + parameterSetterClassName + "();");
             }
             nestedClassBuilder.addImportType(ArrayIndexOutOfBoundsException.class);
             parameterSetterMethod.addBody("}");
