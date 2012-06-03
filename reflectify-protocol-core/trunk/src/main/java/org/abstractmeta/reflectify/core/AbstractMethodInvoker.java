@@ -40,13 +40,6 @@ public abstract class AbstractMethodInvoker {
             this.genericResultType = method.getGenericReturnType();
             this.resultType = method.getReturnType();
         } catch (NoSuchMethodException e) {
-            for(Method method: clazz.getMethods()) {
-                if(method.getName().equals(methodName)) {
-                    System.out.println(Arrays.asList(method.getParameterTypes()));
-                    
-                }
-            }
-            
             throw new IllegalStateException("Failed to lookup method " + methodName, e);
         }
     }

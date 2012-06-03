@@ -173,7 +173,10 @@ public abstract class AbstractReflectify<I> implements Reflectify<I> {
                 return executorCandidate;
             }
         }
-        throw new IllegalArgumentException("Failed to find provider matching " + key);
+        if(type.isInterface()) {
+            throw new IllegalStateException("Interface  " + type +  " has not instance provider");
+        }
+        throw new IllegalArgumentException("Failed to find provider matching [" + key + "] for" + type);
     }
 
 
