@@ -94,6 +94,9 @@ public class ReflectifyRuntimeRegistry implements ReflectifyRegistry {
     }
 
     public <T> Reflectify<T> load(Class<T> type) {
+        if(type == null) {
+            throw new IllegalArgumentException("type was null");
+        }
         Descriptor descriptor = new DescriptorBuilder()
                 .setSourceClass(type.getName())
                 .setPlugin(ReflectifyGenerator.class.getName()).build();
@@ -107,7 +110,7 @@ public class ReflectifyRuntimeRegistry implements ReflectifyRegistry {
             Reflectify<T> result = (Reflectify<T>) generatedClass.newInstance();
             return result;
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to load Reflectify for " + type);
+            throw new IllegalStateException("Failed to load Reflectify for " + type, e);
         }
     }
 
