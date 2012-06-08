@@ -16,6 +16,7 @@
 package org.abstractmeta.reflectify.plugin;
 
 import org.abstractmeta.code.g.code.*;
+import org.abstractmeta.code.g.core.code.JavaTypeImporterImpl;
 import org.abstractmeta.code.g.core.code.builder.JavaConstructorBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaFieldBuilder;
 import org.abstractmeta.code.g.core.code.builder.JavaMethodBuilder;
@@ -51,6 +52,9 @@ import java.util.*;
  */
 public class ReflectifyGenerator extends AbstractGeneratorPlugin implements CodeGeneratorPlugin {
 
+    private final JavaTypeImporter importer = new JavaTypeImporterImpl("");
+
+
     public List<String> generate(Collection<String> sourceTypeNames, JavaTypeRegistry registry, Descriptor descriptor) {
         List<String> result = super.generate(sourceTypeNames, registry, descriptor);
         buildProvider(result, registry, descriptor);
@@ -58,7 +62,7 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
     }
 
     protected String getTargetTypeName(JavaType sourceType, Descriptor descriptor, JavaTypeRegistry registry) {
-        String buildResultTypeName = JavaTypeUtil.getSuperTypeName(sourceType);
+        String buildResultTypeName = JavaTypeUtil.matchDeclaringTypeName(sourceType);
         String buildResultSimpleClassName = JavaTypeUtil.getSimpleClassName(buildResultTypeName, true);
         buildResultSimpleClassName = buildResultSimpleClassName.replace(".", "");
         return getTargetTypeName(buildResultSimpleClassName, descriptor, registry);
@@ -109,7 +113,6 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
         protoBuilder.setTypeName(targetTypeName);
         protoBuilder.setSuperType(new ParameterizedTypeImpl(null, AbstractReflectify.class, reflectifyType));
 
-
         protoBuilder.addConstructor(new JavaConstructorBuilder().addModifier("public").setName(protoBuilder.getSimpleName()).addBody("super(" + classSimpleName + ".class);").build());
         List<JavaMethod> methods = sourceType.getMethods();
         generateAccessors(protoBuilder, methods, reflectifyType);
@@ -144,7 +147,6 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
         }
         for (JavaConstructor constructor : sourceType.getConstructors()) {
             String sourceTypeSimpleName = JavaTypeUtil.getSimpleClassName(sourceType.getName(), true);
-
 
             String constructorCounterPostfix = getOccurrence(providerCounter,  JavaTypeUtil.getSimpleClassName(sourceType.getName(), false));
             String providerClassName = StringUtil.format(CaseFormat.UPPER_CAMEL, JavaTypeUtil.getSimpleClassName(sourceType.getName(), false), "provider" + constructorCounterPostfix, CaseFormat.LOWER_CAMEL);
@@ -240,7 +242,11 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
         } else {
             Set<Type> resultVariableType = ReflectUtil.getTypeVariables(resultType);
             genericTypes.addAll(resultVariableType);
-            String cast  = resultVariableType.size() > 0 ? "(" + resultType.toString() + ")" :"";
+
+
+
+            String cast  = resultVariableType.size() > 0 ? "(" + importer.getSimpleTypeName(resultType) + ")" :"";
+
             methodInvokerClassBuilder.addBody(bodyIndent+ String.format("return %sinstance.%s(%s);", cast, methodName, invokeMethodArgumentLiteral));
 
         }
@@ -254,7 +260,7 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
        for(JavaField field: invokerClassBuilder.getFields()) {
             Type fieldType = field.getType();
             genericTypes.addAll(ReflectUtil.getTypeVariables(fieldType));
-            invokerClassBuilder.getGenericTypeVariables().put(fieldType.toString(), Object.class);
+            invokerClassBuilder.getGenericTypeVariables().put(importer.getSimpleTypeName(fieldType), Object.class);
 
         }
 
