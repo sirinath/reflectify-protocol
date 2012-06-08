@@ -15,10 +15,17 @@
  */
 package org.abstractmeta.reflectify.runtime;
 
+import org.abstractmeta.reflectify.MethodInvoker;
 import org.abstractmeta.reflectify.Reflectify;
 import org.abstractmeta.reflectify.ReflectifyRegistry;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Test
 public class ReflectifyRuntimeRegistryTest {
@@ -48,7 +55,74 @@ public class ReflectifyRuntimeRegistryTest {
         Assert.assertEquals(empReflectify.getAccessor("id").get(emp), 12);
     }
 
+    public void testReflectifyWithList() {
+        ReflectifyRegistry registry = new ReflectifyRuntimeRegistry();
+        Assert.assertFalse(registry.isRegistered(List.class));
+        Reflectify<List> empReflectify = registry.get(List.class);
+        Assert.assertTrue(registry.isRegistered(List.class));
+        List<Integer> list = new ArrayList<Integer>();
+        MethodInvoker<List, Boolean> addMethod = empReflectify.getMethodInvoker(boolean.class, "add", Integer.class);
+        Assert.assertNotNull(addMethod);
+        addMethod.getParameterSetter(0).set(100);
+        addMethod.invoke(list);
+        Assert.assertEquals(list.size(), 1);
+        Assert.assertEquals(list.get(0), new Integer(100));
+    }
 
+    public void testReflectifyWithMap() {
+        ReflectifyRegistry registry = new ReflectifyRuntimeRegistry();
+        Assert.assertFalse(registry.isRegistered(Map.class));
+        Reflectify<Map> mapReflectify = registry.get(Map.class);
+        Assert.assertTrue(registry.isRegistered(Map.class));
+        Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+        MethodInvoker<Map, Boolean> putMethod = mapReflectify.getMethodInvoker(boolean.class, "put", Integer.class, Integer.class);
+        Assert.assertNotNull(putMethod);
+        putMethod.getParameterSetter(0).set(1);
+        putMethod.getParameterSetter(1).set(2);
+        putMethod.invoke(map);
+        Assert.assertEquals(map.size(), 1);
+        Assert.assertEquals(map.get(1), new Integer(2));
+    }
+
+
+    @Test(expectedExceptions = RuntimeException.class)
+    public void testReflectifyWithExceptionHandling() {
+        ReflectifyRegistry registry = new ReflectifyRuntimeRegistry();
+        Assert.assertFalse(registry.isRegistered(Bar.class));
+        Reflectify<Bar> barReflectify = registry.get(Bar.class);
+       barReflectify.getProvider(boolean.class).get();
+    }
+
+
+    @Test(expectedExceptions = RuntimeException.class)
+    public void testReflectifyWithMethodExceptionHandling() {
+        ReflectifyRegistry registry = new ReflectifyRuntimeRegistry();
+        Assert.assertFalse(registry.isRegistered(Bar.class));
+        Reflectify<Bar> barReflectify = registry.get(Bar.class);
+        MethodInvoker<Bar, Void> fooMethod = barReflectify.getMethodInvoker(void.class, "foo");
+        Bar b = new Bar();
+        Assert.assertNotNull(fooMethod);
+        fooMethod.invoke(b);
+    }
+
+
+    public static class Bar {
+
+        
+        public Bar() {
+            
+        }
+        public Bar(boolean exception) throws Exception {
+               throw new Exception("test");
+        }
+
+        public void foo() throws IOException {
+             throw new IOException("test") ;
+        }
+
+    }
+
+    
     public static class Dept {
         private int id;
         private String name;
