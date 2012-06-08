@@ -32,6 +32,7 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 
 @Test
@@ -66,6 +67,27 @@ public class ReflectifyGeneratorTest {
         Descriptor descriptor = new DescriptorBuilder()
                 .setSourceClass(List.class.getName())
                 .setSourcePackage(List.class.getPackage().getName())
+                .setPlugin(ReflectifyGenerator.class.getName())
+                .build();
+        List<String> build = generator.generate(Arrays.asList(javaType.getName()), registry, descriptor);
+        String typeName = build.get(0);
+        JavaType builtType = registry.get(typeName);
+        JavaTypeRenderer renderer = new TypeRenderer();
+        JavaTypeImporter importer = new JavaTypeImporterImpl(Employee.class.getPackage().getName() + ".reflectify");
+        String code = renderer.render(builtType, importer, 0);
+        Assert.assertNotNull(code,  "");
+    }
+
+
+
+    public void testReflectifyWithMapGenerator() {
+        ReflectifyGenerator generator = new ReflectifyGenerator();
+        JavaTypeRegistry registry = new JavaTypeRegistryImpl();
+        JavaType javaType = new ClassTypeProvider(Map.class).get();
+        registry.register(javaType);
+        Descriptor descriptor = new DescriptorBuilder()
+                .setSourceClass(Map.class.getName())
+                .setSourcePackage(Map.class.getPackage().getName())
                 .setPlugin(ReflectifyGenerator.class.getName())
                 .build();
         List<String> build = generator.generate(Arrays.asList(javaType.getName()), registry, descriptor);
