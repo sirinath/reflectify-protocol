@@ -15,12 +15,14 @@
  */
 package org.abstractmeta.reflectify.runtime;
 
+import com.sun.org.apache.xalan.internal.xsltc.compiler.util.ClassGenerator;
 import org.abstractmeta.code.g.CodeGenerator;
 import org.abstractmeta.code.g.config.Descriptor;
 import org.abstractmeta.code.g.core.CodeGeneratorImpl;
 import org.abstractmeta.code.g.core.config.builder.DescriptorBuilder;
 import org.abstractmeta.code.g.core.handler.SourceCompilerHandler;
 import org.abstractmeta.reflectify.Reflectify;
+import org.abstractmeta.reflectify.ReflectifyLoader;
 import org.abstractmeta.reflectify.ReflectifyRegistry;
 import org.abstractmeta.reflectify.core.ReflectifyRegistryImpl;
 import org.abstractmeta.reflectify.plugin.ReflectifyGenerator;
@@ -38,7 +40,7 @@ import java.util.Map;
 public class ReflectifyRuntimeRegistry implements ReflectifyRegistry {
 
     private final ReflectifyRegistry registry;
-    private final CodeGenerator codeBuilder;
+    private final ReflectifyLoader reflectifyClassLoader;
 
 
     public ReflectifyRuntimeRegistry() {
@@ -46,12 +48,12 @@ public class ReflectifyRuntimeRegistry implements ReflectifyRegistry {
     }
 
     public ReflectifyRuntimeRegistry(ReflectifyRegistry registry) {
-        this(registry, new CodeGeneratorImpl());
+        this(registry, new ReflectifyClassLoader());
     }
 
-    protected ReflectifyRuntimeRegistry(ReflectifyRegistry registry, CodeGenerator codeBuilder) {
+    protected ReflectifyRuntimeRegistry(ReflectifyRegistry registry, ReflectifyLoader reflectifyClassLoader) {
         this.registry = registry;
-        this.codeBuilder = codeBuilder;
+        this.reflectifyClassLoader = reflectifyClassLoader;
     }
 
     @Override
@@ -94,24 +96,8 @@ public class ReflectifyRuntimeRegistry implements ReflectifyRegistry {
     }
 
     public <T> Reflectify<T> load(Class<T> type) {
-        if(type == null) {
-            throw new IllegalArgumentException("type was null");
-        }
-        Descriptor descriptor = new DescriptorBuilder()
-                .setSourceClass(type.getName())
-                .setPlugin(ReflectifyGenerator.class.getName()).build();
-        SourceCompilerHandler compilerHandler = new SourceCompilerHandler();
-        codeBuilder.generate(Arrays.asList(descriptor), compilerHandler);
-        List<String> generated = compilerHandler.getGeneratedTypes();
-        ClassLoader classLoader = compilerHandler.compile();
-        try {
-            Class generatedClass = classLoader.loadClass(generated.get(0));
-            @SuppressWarnings("unchecked")
-            Reflectify<T> result = (Reflectify<T>) generatedClass.newInstance();
-            return result;
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to load Reflectify for " + type, e);
-        }
+        return reflectifyClassLoader.load(type);
     }
+
 
 }
