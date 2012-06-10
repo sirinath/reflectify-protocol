@@ -38,7 +38,7 @@ You can use this library for reflection in the following way
 
 
     ReflectifyRegistry registry = new ReflectifyRuntimeRegistry(); 
-    ReflectifyProtocol<Employee> reflectify = registry.get(Employee.class);
+    Reflectify<Employee> reflectify = registry.get(Employee.class);
 
 }}}
 
@@ -51,7 +51,7 @@ You can use this library for reflection in the following way
     // for statically generated reflectify implementation 
     ReflectifyRegistry registry = new ReflectifyRegistryImpl();
     registry.registerAll(new ExampleReflectifyProvider().get());
-    ReflectifyProtocol<Employee> reflectify = registry.get(Employee.class);
+    Reflectify<Employee> reflectify = registry.get(Employee.class);
 
 
 }}}
@@ -65,7 +65,7 @@ You can use this library for reflection in the following way
     Employee employee = provider.get();
    
    //for String.class, int.class, ... constructor parameters
-   ReflectifyProtocol.Provider<Employee> provider = reflectify.getProvider(String.class, int.class, ...); 
+   Reflectify.Provider<Employee> provider = reflectify.getProvider(String.class, int.class, ...); 
     Employee employee = provider.get();
  
 
