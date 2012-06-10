@@ -61,7 +61,7 @@ You can use this library for reflection in the following way
 {{{
 
     //for zero argument constructor
-    ReflectifyProtocol.Provider<Employee> provider = reflectify.getProvider();
+    Reflectify.Provider<Employee> provider = reflectify.getProvider();
     Employee employee = provider.get();
    
    //for String.class, int.class, ... constructor parameters
