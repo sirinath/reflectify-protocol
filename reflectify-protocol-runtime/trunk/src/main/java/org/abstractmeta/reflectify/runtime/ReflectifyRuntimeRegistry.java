@@ -42,7 +42,7 @@ public class ReflectifyRuntimeRegistry implements ReflectifyRegistry {
     private final ReflectifyRegistry registry;
     private final ReflectifyLoader reflectifyClassLoader;
 
-
+    @SuppressWarnings("unchecked")
     public ReflectifyRuntimeRegistry() {
         this(new ReflectifyRegistryImpl());
     }
