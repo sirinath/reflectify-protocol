@@ -14,9 +14,9 @@ public class EmployeeReflectifyTest {
         
         ReflectifyRegistry registry = new ReflectifyRegistryImpl();
         registry.registerAll(new ExampleReflectifyProvider().get());
-        ReflectifyProtocol<Employee> reflectify = registry.get(Employee.class);
+        Reflectify<Employee> reflectify = registry.get(Employee.class);
         
-        ReflectifyProtocol.Provider<Employee> provider = reflectify.getProvider();
+        Reflectify.Provider<Employee> provider = reflectify.getProvider();
         Employee employee = provider.get();
 
         Mutator<Employee, Object> nameMutator1 = reflectify.getMutator("name");

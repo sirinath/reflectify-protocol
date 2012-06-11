@@ -7,7 +7,7 @@
     <version>0.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>reflectify-protocol-parent</name>
-    <url>http://maven.apache.org</url>
+    <url>http://code.google.com/p/reflectify-protocol</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -16,6 +16,7 @@
         <module>../../reflectify-protocol-api/trunk</module>
         <module>../../reflectify-protocol-core/trunk</module>
         <module>../../reflectify-protocol-codegen/trunk</module>
+        <module>../../reflectify-protocol-runtime/trunk</module>
         <module>../../reflectify-protocol-example/trunk</module>
     </modules>
 </project>
