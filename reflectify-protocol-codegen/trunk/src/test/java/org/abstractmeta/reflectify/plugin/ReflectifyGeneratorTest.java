@@ -119,8 +119,27 @@ public class ReflectifyGeneratorTest {
         Assert.assertNotNull(code,  "");
     }
 
-    
-    
+
+
+    public void testBooleanFix() {
+        ReflectifyGenerator generator = new ReflectifyGenerator();
+        JavaTypeRegistry registry = new JavaTypeRegistryImpl();
+        JavaType javaType = new ClassTypeProvider(BooleanFix.class).get();
+        registry.register(javaType);
+        Descriptor descriptor = new DescriptorBuilder()
+                .setSourceClass(BooleanFix.class.getName())
+                .setSourcePackage(BooleanFix.class.getPackage().getName())
+                .setPlugin(ReflectifyGenerator.class.getName())
+                .build();
+        List<String> build = generator.generate(Arrays.asList(javaType.getName()), registry, descriptor);
+        String typeName = build.get(0);
+        JavaType builtType = registry.get(typeName);
+        JavaTypeRenderer renderer = new TypeRenderer();
+        JavaTypeImporter importer = new JavaTypeImporterImpl(BooleanFix.class.getPackage().getName() + ".reflectify");
+        String code = renderer.render(builtType, importer, 0);
+        Assert.assertNotNull(code);
+    //    Assert.assertEquals(code, "");
+    }
 
     public static class Bar {
        
@@ -198,4 +217,25 @@ public class ReflectifyGeneratorTest {
         BASIC, ADVANCE
     }
 
+    
+    public static class BooleanFix {
+        private String a;
+        private boolean b;
+
+        public String getA() {
+            return a;
+        }
+
+        public void setA(String a) {
+            this.a = a;
+        }
+
+        public boolean isB() {
+            return b;
+        }
+
+        public void setB(boolean b) {
+            this.b = b;
+        }
+    }
 }
