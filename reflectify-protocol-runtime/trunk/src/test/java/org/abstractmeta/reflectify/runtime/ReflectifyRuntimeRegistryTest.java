@@ -106,6 +106,17 @@ public class ReflectifyRuntimeRegistryTest {
     }
 
 
+    public void testDuplicateAccessorFix() {
+        ReflectifyRegistry registry = new ReflectifyRuntimeRegistry();
+        Assert.assertFalse(registry.isRegistered(BooleanFix.class));
+        Reflectify<BooleanFix> reflectify = registry.get(BooleanFix.class);
+        Assert.assertTrue(registry.isRegistered(BooleanFix.class));
+        BooleanFix instance = reflectify.getProvider().get();
+        reflectify.getMutator("b").set(instance, true);
+        Assert.assertEquals(instance.isB(), true);
+        Assert.assertEquals(reflectify.getAccessor("b").get(instance), true);
+    }
+
     public static class Bar {
 
         
@@ -187,4 +198,25 @@ public class ReflectifyRuntimeRegistryTest {
         BASIC, ADVANCE
     }
 
+
+    public static class BooleanFix {
+        private String a;
+        private boolean b;
+
+        public String getA() {
+            return a;
+        }
+
+        public void setA(String a) {
+            this.a = a;
+        }
+
+        public boolean isB() {
+            return b;
+        }
+
+        public void setB(boolean b) {
+            this.b = b;
+        }
+    }
 }
