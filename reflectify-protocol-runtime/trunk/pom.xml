@@ -118,6 +118,7 @@
 
     <dependencies>
         <dependency>
+
             <groupId>org.abstractmeta</groupId>
             <artifactId>reflectify-protocol-codegen</artifactId>
             <version>0.3.0-SNAPSHOT</version>

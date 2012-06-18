@@ -29,7 +29,6 @@ public class ReflectifyClassBuilderLoaderTest {
     @SuppressWarnings("unchecked")
     public void testReflectifyClassBuilderLoader() {
         ReflectifyClassBuilderLoader loader = new ReflectifyClassBuilderLoader();
-        ReflectifyRegistry registry = new ReflectifyRuntimeRegistry();
         Reflectify fooBuilderReflectify = loader.load(Foo.class);
         Object builder = fooBuilderReflectify.getProvider().get();
         fooBuilderReflectify.getMutator("id").set(builder, 1);
