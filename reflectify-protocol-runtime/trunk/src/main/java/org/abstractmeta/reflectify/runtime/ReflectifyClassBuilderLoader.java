@@ -81,6 +81,8 @@ public class ReflectifyClassBuilderLoader implements ReflectifyLoader {
                     .setPlugin(pluginName).build();
             codeBuilder.generate(Arrays.asList(descriptor), compilerHandler, classLoader);
             List<String> generated = compilerHandler.getGeneratedTypes();
+
+
             classLoader = compilerHandler.compile(classLoader);
             try {
                 type = classLoader.loadClass(generated.get(0));
