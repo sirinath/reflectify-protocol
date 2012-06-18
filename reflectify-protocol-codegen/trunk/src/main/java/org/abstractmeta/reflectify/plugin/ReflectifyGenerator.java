@@ -361,7 +361,7 @@ public class ReflectifyGenerator extends AbstractGeneratorPlugin implements Code
                 continue;
             }
             String methodName = method.getName();
-            if (!methodName.startsWith("get") || method.getParameterTypes().size() > 0) {
+            if (!((methodName.startsWith("get") || methodName.startsWith("is")) &&  method.getParameterTypes().size() == 0)) {
                 continue;
             }
             String fieldName = ReflectUtil.extractFieldNameFromMethodName(method.getName());
