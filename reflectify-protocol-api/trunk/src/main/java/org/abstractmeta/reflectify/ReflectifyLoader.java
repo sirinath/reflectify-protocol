@@ -23,7 +23,6 @@ package org.abstractmeta.reflectify;
 public interface ReflectifyLoader {
 
 
-
       Reflectify load(Class type);
 
       Reflectify load(Class type, ClassLoader classLoader);
