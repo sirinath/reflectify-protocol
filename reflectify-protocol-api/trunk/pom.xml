@@ -24,9 +24,9 @@
         </license>
     </licenses>
     <scm>
-        <url>https://reflectify-protocol.googlecode.com/svn/reflectify-protocol-api/trunk/</url>
-        <connection>scm:svn:https://reflectify-protocol.googlecode.com/svn/reflectify-protocol-api/trunk</connection>
-        <developerConnection>scm:svn:https://reflectify-protocol.googlecode.com/svn/reflectify-protocol-api/trunk</developerConnection>
+        <url>https://reflectify-protocol.googlecode.com/svn/reflectify-protocol-api/tags/reflectify-protocol-api-0.3.0</url>
+        <connection>scm:svn:https://reflectify-protocol.googlecode.com/svn/reflectify-protocol-api/tags/reflectify-protocol-api-0.3.0</connection>
+        <developerConnection>scm:svn:https://reflectify-protocol.googlecode.com/svn/reflectify-protocol-api/tags/reflectify-protocol-api-0.3.0</developerConnection>
     </scm>
     <developers>
         <developer>
