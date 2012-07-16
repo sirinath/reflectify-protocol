@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.abstractmeta</groupId>
     <artifactId>reflectify-protocol-core</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>reflectify-protocol-core</name>
     <url>http://code.google.com/p/reflectify-protocol/</url>
@@ -24,9 +24,9 @@
         </license>
     </licenses>
     <scm>
-        <url>https://reflectify-protocol.googlecode.com/svn/reflectify-protocol-core/tags/reflectify-protocol-core-0.3.0</url>
-        <connection>scm:svn:https://reflectify-protocol.googlecode.com/svn/reflectify-protocol-core/tags/reflectify-protocol-core-0.3.0</connection>
-        <developerConnection>scm:svn:https://reflectify-protocol.googlecode.com/svn/reflectify-protocol-core/tags/reflectify-protocol-core-0.3.0</developerConnection>
+        <url>https://reflectify-protocol.googlecode.com/svn/reflectify-protocol-core/trunk/</url>
+        <connection>scm:svn:https://reflectify-protocol.googlecode.com/svn/reflectify-protocol-core/trunk</connection>
+        <developerConnection>scm:svn:https://reflectify-protocol.googlecode.com/svn/reflectify-protocol-core/trunk</developerConnection>
     </scm>
     <developers>
         <developer>
