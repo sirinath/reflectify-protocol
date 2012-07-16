@@ -138,7 +138,6 @@ public class ReflectifyGeneratorTest {
         JavaTypeImporter importer = new JavaTypeImporterImpl(BooleanFix.class.getPackage().getName() + ".reflectify");
         String code = renderer.render(builtType, importer, 0);
         Assert.assertNotNull(code);
-    //    Assert.assertEquals(code, "");
     }
 
     public static class Bar {
