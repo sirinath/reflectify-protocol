@@ -124,7 +124,7 @@ This library is managed by maven central repository, at this time however it is 
 <dependency>
   <groupId>org.abstractmeta</groupId>
     <artifactId>reflectify-protocol-core</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>0.3.0</version>
 </dependency>
 }}}
 
@@ -133,7 +133,7 @@ This library is managed by maven central repository, at this time however it is 
 <dependency>
     <groupId>org.abstractmeta</groupId>
     <artifactId>reflectify-protocol-runtime</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>0.3.0</version>
 </dependency>
 }}}
 
@@ -151,7 +151,7 @@ for example plugin configuration for all 'org.abstractmeta.reflectify.example' p
         <dependency>
             <groupId>org.abstractmeta</groupId>
             <artifactId>reflectify-protocol-codegen</artifactId>
-            <version>0.3.0-SNAPSHOT</version>
+            <version>0.3.0</version>
   </dependency>
     </dependencies>
     <configuration>
