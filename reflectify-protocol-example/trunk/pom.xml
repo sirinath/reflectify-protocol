@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.abstractmeta</groupId>
     <artifactId>reflectify-protocol-example</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>0.4.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>reflectify-protocol-example</name>
     <url>http://code.google.com/p/reflectify-protocol</url>
@@ -50,12 +50,12 @@
 <plugin>
     <groupId>org.abstractmeta</groupId>
     <artifactId>code-g-maven-plugin</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
     <dependencies>
         <dependency>
             <groupId>org.abstractmeta</groupId>
             <artifactId>reflectify-protocol-codegen</artifactId>
-            <version>0.3.0-SNAPSHOT</version>
+            <version>0.3.0</version>
   </dependency>
     </dependencies>
     <configuration>
@@ -77,25 +77,20 @@
             </goals>
         </execution>
     </executions>
-</plugin>
-
-
-        </plugins>
-
-
+    </plugin>
+  </plugins>
     </build>
-
 
     <dependencies>
         <dependency>
             <groupId>org.abstractmeta</groupId>
             <artifactId>reflectify-protocol-api</artifactId>
-            <version>0.3.0-SNAPSHOT</version>
+            <version>0.3.0</version>
         </dependency>
         <dependency>
             <groupId>org.abstractmeta</groupId>
             <artifactId>reflectify-protocol-core</artifactId>
-            <version>0.3.0-SNAPSHOT</version>
+            <version>0.3.0</version>
         </dependency>
 
         <!-- test dependencies -->
