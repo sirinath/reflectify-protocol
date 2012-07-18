@@ -30,7 +30,7 @@ public class Employee {
 
 You can use this library for reflection in the following way
 
-=== Instantiate ReflectifyProtocol ===
+=== Instantiate Reflectify ===
 
 ==== Runtime generated ====
 
@@ -44,7 +44,7 @@ You can use this library for reflection in the following way
 
 
 
-==== Statically generated reflectify code (maven plugin)====
+==== Statically generated reflectify code (maven plugin) ====
 
 {{{  
 
@@ -146,7 +146,7 @@ for example plugin configuration for all 'org.abstractmeta.reflectify.example' p
 <plugin>
     <groupId>org.abstractmeta</groupId>
     <artifactId>code-g-maven-plugin</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
     <dependencies>
         <dependency>
             <groupId>org.abstractmeta</groupId>
