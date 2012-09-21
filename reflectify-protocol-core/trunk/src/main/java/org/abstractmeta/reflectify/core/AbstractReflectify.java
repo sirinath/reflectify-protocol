@@ -20,11 +20,9 @@ import org.abstractmeta.reflectify.MethodInvoker;
 import org.abstractmeta.reflectify.Mutator;
 import org.abstractmeta.reflectify.Reflectify;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Abstract Reflectify Protocol class provides implementation of all base methods.
@@ -197,17 +195,87 @@ public abstract class AbstractReflectify<I> implements Reflectify<I> {
 
     @Override
     public Accessor<I, Object> getAccessor(String fieldName) {
-        return accessors.get(fieldName);
+        Accessor<I, Object>  result =  accessors.get(fieldName);
+        if(result == null) {
+            result = createReflectionAccessor(fieldName, type);
+            if(result != null) {
+                accessors.put(fieldName, result);
+            }
+        }
+
+        return result;
     }
+
+
+
+    protected Accessor<I,Object> createReflectionAccessor(final String fieldName, final Class<I> type) {
+        RuntimeException runtimeException = null;
+        try {
+            if(! type.isInterface())  {
+                final Field field = type.getField(fieldName);
+                field.setAccessible(true);
+                return new Accessor<I,Object>() {
+
+                    @Override
+                    public Object get(I instance) {
+                        try {
+                            return field.get(instance);
+                        } catch (IllegalAccessException e) {
+                            throw new IllegalStateException("Failed to read "  + type.getSimpleName() + "."+ fieldName, e);
+                        }
+                    }
+                };
+
+            }
+
+        } catch (Exception e) {
+            runtimeException = new IllegalStateException(e);
+        }
+        throw new IllegalStateException("Failed to lookup accessor " + fieldName + " for  "  + type.getName(), runtimeException);
+    }
+
+
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> Mutator<I, T> getMutator(Class<T> fieldType, String fieldName) {
         Mutator<I, Object> result = mutators.get(fieldName);
         if (result == null) {
-            return null;
+            result = createReflectionMutator(fieldName, type);
+            if(result == null) {
+                return null;
+            }
+            mutators.put(fieldName, result);
+
         }
         return (Mutator<I, T>) result;
+    }
+
+    protected Mutator<I,Object> createReflectionMutator(final String fieldName, final Class<I> type) {
+        RuntimeException runtimeException = null;
+        try {
+            if(! type.isInterface())  {
+                final Field field = type.getField(fieldName);
+                field.setAccessible(true);
+                return new Mutator<I,Object>() {
+
+
+                    @Override
+                    public void set(I instance, Object value) {
+                        try {
+                            field.set(instance, value);
+                        } catch (IllegalAccessException e) {
+                            throw new IllegalStateException("Failed to update " + type.getSimpleName() + "." + fieldName, e);
+                        }
+                    }
+                };
+
+            }
+
+        } catch (Exception e) {
+            runtimeException = new IllegalStateException(e);
+        }
+        throw new IllegalStateException("Failed to lookup mutator " + fieldName + " for  "  + type.getName(), runtimeException);
     }
 
     @Override
