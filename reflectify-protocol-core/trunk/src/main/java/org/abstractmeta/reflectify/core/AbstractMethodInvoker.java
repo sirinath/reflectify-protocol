@@ -24,6 +24,8 @@ import java.util.Arrays;
 
 public abstract class AbstractMethodInvoker {
 
+    private final String methodName;
+    private final Class ownerType;
     private final Type[] genericArgumentTypes;
     private final Class[] argumentTypes;
     private final Type genericResultType;
@@ -31,14 +33,16 @@ public abstract class AbstractMethodInvoker {
 
 
     @SuppressWarnings("unchecked")
-    protected AbstractMethodInvoker(Class clazz, String methodName, Class... argumentTypes) {
+    protected AbstractMethodInvoker(Class ownerType, String methodName, Class... argumentTypes) {
         try {
 
-            Method method = clazz.getMethod(methodName, argumentTypes);
+            Method method = ownerType.getMethod(methodName, argumentTypes);
             this.argumentTypes = argumentTypes;
             this.genericArgumentTypes = method.getGenericParameterTypes();
             this.genericResultType = method.getGenericReturnType();
             this.resultType = method.getReturnType();
+            this.ownerType = ownerType;
+            this.methodName = methodName;
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException("Failed to lookup method " + methodName, e);
         }
@@ -65,5 +69,16 @@ public abstract class AbstractMethodInvoker {
     public ParameterSetter<Object> getParameterSetter(int argumentIndex) {
         return getParameterSetter(Object.class, argumentIndex);
     }
+
+
+    public String getMethodName() {
+        return methodName;
+    }
+
+
+    public Class getOwnerType() {
+        return ownerType;
+    }
+
 
 }
