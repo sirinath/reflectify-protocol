@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.abstractmeta</groupId>
-    <artifactId>reflectify-protocol-runtime</artifactId>
+    <artifactId>reflectify-protocol</artifactId>
     <version>0.3.1-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>reflectify-protocol-runtime</name>
-    <url>http://code.google.com/p/reflectify-protocol</url>
-    <description>Java code generation runtime</description>
+    <name>reflectify-protocol</name>
+    <url>http://code.google.com/p/reflectify-protocol/</url>
+    <description>Java meta object protocol reflection</description>
     <parent>
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
@@ -24,9 +24,9 @@
         </license>
     </licenses>
     <scm>
-        <url>https://reflectify-protocol.googlecode.com/svn/reflectify-protocol-runtime/trunk/</url>
-        <connection>scm:svn:https://reflectify-protocol.googlecode.com/svn/reflectify-protocol-runtime/trunk</connection>
-        <developerConnection>scm:svn:https://reflectify-protocol.googlecode.com/svn/reflectify-protocol-runtime/trunk</developerConnection>
+        <url>https://reflectify-protocol.googlecode.com/svn/reflectify-protocol-api/tags/reflectify-protocol-api-0.3.0</url>
+        <connection>scm:svn:https://reflectify-protocol.googlecode.com/svn/reflectify-protocol-api/tags/reflectify-protocol-api-0.3.0</connection>
+        <developerConnection>scm:svn:https://reflectify-protocol.googlecode.com/svn/reflectify-protocol-api/tags/reflectify-protocol-api-0.3.0</developerConnection>
     </scm>
     <developers>
         <developer>
@@ -40,7 +40,6 @@
         </developer>
     </developers>
 
-
     <build>
         <plugins>
             <plugin>
@@ -50,6 +49,29 @@
                     <source>1.6</source>
                     <target>1.6</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>1.5</version>
+                <configuration>
+                    <artifactSet>
+                        <includes>
+                            <incldue>org.abstractmeta:reflectify-protocol-api</incldue>
+                            <incldue>org.abstractmeta:reflectify-protocol-core</incldue>
+                            <incldue>org.abstractmeta:reflectify-protocol-code-gen</incldue>
+                            <incldue>org.abstractmeta:reflectify-protocol-runtime</incldue>
+                        </includes>
+                     </artifactSet>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <!-- Deploy a "-sources.jar" along with build -->
@@ -96,12 +118,8 @@
                 <groupId>com.mycila.maven-license-plugin</groupId>
                 <artifactId>maven-license-plugin</artifactId>
                 <version>1.10.b1</version>
-
                 <configuration>
                     <header>src/etc/header.txt</header>
-                    <excludes>
-                        <exclude>/LICENSES/APACHEv2</exclude>
-                    </excludes>
                 </configuration>
                 <executions>
                     <execution>
@@ -117,12 +135,10 @@
 
     <dependencies>
         <dependency>
-
-            <groupId>org.abstractmeta</groupId>
-            <artifactId>reflectify-protocol-codegen</artifactId>
-            <version>0.3.1-SNAPSHOT</version>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <version>1</version>
         </dependency>
-
         <dependency>
             <groupId>org.abstractmeta</groupId>
             <artifactId>reflectify-protocol-core</artifactId>
@@ -130,19 +146,16 @@
         </dependency>
         <dependency>
             <groupId>org.abstractmeta</groupId>
-            <artifactId>compilation-toolbox</artifactId>
-            <version>0.3.1</version>
+            <artifactId>reflectify-protocol-codegen</artifactId>
+            <version>0.3.1-SNAPSHOT</version>
         </dependency>
-
-
-        <!-- test dependencies -->
         <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <version>5.9</version>
-            <classifier>jdk15</classifier>
-            <scope>test</scope>
+            <groupId>org.abstractmeta</groupId>
+            <artifactId>reflectify-protocol-runtime</artifactId>
+            <version>0.3.1-SNAPSHOT</version>
         </dependency>
+
     </dependencies>
+
 
 </project>
