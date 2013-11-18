@@ -37,7 +37,7 @@ import java.util.List;
 public class UnitDescriptorUtil {
 
 
-    public static UnitDescriptor getUnitDescriptor(Class ... classes) {
+    public static UnitDescriptor getUnitDescriptor(Class... classes) {
         UnitDescriptorImpl result = new UnitDescriptorImpl();
         DescriptorImpl descriptor = new DescriptorImpl();
         SourceMatcherImpl sourceMatcher = new SourceMatcherImpl();

@@ -147,7 +147,7 @@ public class ReflectifyGenerator extends AbstractGenerator<ReflectifyGeneratorCo
     private void generateProviders(JavaTypeBuilder typeBuilder, JavaType sourceType, Type reflectifyType) {
         Map<String, Integer> providerCounter = new HashMap<String, Integer>();
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
-        methodBuilder.addModifier(JavaModifier.PROTECTED).setName("registerProviders").setResultType(void.class);
+        methodBuilder.addModifiers(JavaModifier.PROTECTED).setName("registerProviders").setResultType(void.class);
         methodBuilder.addParameter("providers", new ParameterizedTypeImpl(null, List.class, new ParameterizedTypeImpl(null, Reflectify.Provider.class, reflectifyType)));
         methodBuilder.addBodyLines("\n");
         if (sourceType.getConstructors() == null) {
@@ -172,7 +172,7 @@ public class ReflectifyGenerator extends AbstractGenerator<ReflectifyGeneratorCo
             List<Type> constructorParameterTypes = JavaTypeUtil.getParameterTypes(constructor.getParameters());
             buildArgumentSetterClasses(providerClassBuilder, reflectifyType, sourceTypeSimpleName, constructorParameterTypes);
             methodBuilder.addBodyLines(String.format(String.format("providers.add(new %s());", providerClassName)));
-            JavaMethodBuilder getMethodProvider = new JavaMethodBuilder().addModifier(JavaModifier.PUBLIC).setName("get").setResultType(reflectifyType);
+            JavaMethodBuilder getMethodProvider = new JavaMethodBuilder().addModifiers(JavaModifier.PUBLIC).setName("get").setResultType(reflectifyType);
             String constructorParameters = Joiner.on(", ").join(getArgumentSetterMethodArgumentNames(constructorParameterTypes));
             boolean exceptionHandling = constructor.getExceptionTypes() != null && !  constructor.getExceptionTypes().isEmpty();
 
@@ -196,7 +196,7 @@ public class ReflectifyGenerator extends AbstractGenerator<ReflectifyGeneratorCo
         Map<String, Integer> methodCounter = new HashMap<String, Integer>();
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
         methodBuilder.addAnnotation(new SuppressWarningsImpl("unchecked"));
-        methodBuilder.addModifier(JavaModifier.PROTECTED).setName("registerMethodInvokers").setResultType(void.class);
+        methodBuilder.addModifiers(JavaModifier.PROTECTED).setName("registerMethodInvokers").setResultType(void.class);
         methodBuilder.addParameter("methods", new ParameterizedTypeImpl(null, Map.class, String.class,
                 new ParameterizedTypeImpl(null, List.class, new ParameterizedTypeImpl(null, MethodInvoker.class, reflectifyType, Object.class))));
         methodBuilder.addBodyLines("\n");
@@ -221,7 +221,7 @@ public class ReflectifyGenerator extends AbstractGenerator<ReflectifyGeneratorCo
         parameterSetterMethod.addAnnotation(new SuppressWarningsImpl("unchecked"));
 
         TypeVariable typeVariable = new TypeVariableImpl("RP", Object.class);
-        parameterSetterMethod.setName("getParameterSetter").addModifier(JavaModifier.PUBLIC).addGenericVariables(typeVariable)
+        parameterSetterMethod.setName("getParameterSetter").addModifiers(JavaModifier.PUBLIC).addGenericVariables(typeVariable)
                 .setResultType(new ParameterizedTypeImpl(null, ParameterSetter.class, typeVariable));
 
         buildArgumentSetter(typeBuilder, parameterSetterMethod, name, parameterType, reflectifyType);
@@ -244,7 +244,7 @@ public class ReflectifyGenerator extends AbstractGenerator<ReflectifyGeneratorCo
         invokerClassBuilder.addSuperInterfaces(new ParameterizedTypeImpl(null, MethodInvoker.class, reflectifyType, resultType));
 
         JavaMethodBuilder methodInvokerClassBuilder = new JavaMethodBuilder();
-        methodInvokerClassBuilder.addModifier(JavaModifier.PUBLIC).setName("invoke").setResultType(resultType);
+        methodInvokerClassBuilder.addModifiers(JavaModifier.PUBLIC).setName("invoke").setResultType(resultType);
         methodInvokerClassBuilder.addParameter("instance", reflectifyType);
         buildArgumentSetterClasses(invokerClassBuilder, reflectifyType, methodName, parameterTypes);
         String invokeMethodArgumentLiteral = Joiner.on(", ").join(getArgumentSetterMethodArgumentNames(parameterTypes));
@@ -329,7 +329,7 @@ public class ReflectifyGenerator extends AbstractGenerator<ReflectifyGeneratorCo
 
                 parameterSetterClass.setSuperType(AbstractType.class);
                 parameterSetterClass.addSuperInterfaces(new ParameterizedTypeImpl(null, ParameterSetter.class, fileType));
-                JavaMethodBuilder methodBuilder = new JavaMethodBuilder().addModifier(JavaModifier.PUBLIC).setName("set").setResultType(void.class);
+                JavaMethodBuilder methodBuilder = new JavaMethodBuilder().addModifiers(JavaModifier.PUBLIC).setName("set").setResultType(void.class);
                 methodBuilder.addParameter("value", fileType);
                 methodBuilder.addBodyLines(fieldName + " = value;");
                 parameterSetterClass.addMethod(methodBuilder.build());
@@ -359,7 +359,7 @@ public class ReflectifyGenerator extends AbstractGenerator<ReflectifyGeneratorCo
 
     protected void generateAccessors(JavaTypeBuilder typeBuilder, List<JavaMethod> methods, Type reflectifyType) {
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
-        methodBuilder.addModifier(JavaModifier.PROTECTED).setName("registerAccessors").setResultType(void.class);
+        methodBuilder.addModifiers(JavaModifier.PROTECTED).setName("registerAccessors").setResultType(void.class);
         methodBuilder.addParameter("accessors", new ParameterizedTypeImpl(null, Map.class, String.class, new ParameterizedTypeImpl(null, Accessor.class, reflectifyType, Object.class)));
         methodBuilder.addBodyLines("\n");
         for (JavaMethod method : methods) {
@@ -379,7 +379,7 @@ public class ReflectifyGenerator extends AbstractGenerator<ReflectifyGeneratorCo
             methodBuilder.addNestedJavaType(nestedClassBuilder);
             nestedClassBuilder.addSuperInterfaces(new ParameterizedTypeImpl(null, Accessor.class, reflectifyType, fieldType));
             JavaMethodBuilder accessorBuilder = new JavaMethodBuilder();
-            accessorBuilder.addModifier(JavaModifier.PUBLIC).setName("get").setResultType(fieldType);
+            accessorBuilder.addModifiers(JavaModifier.PUBLIC).setName("get").setResultType(fieldType);
             accessorBuilder.addParameter("instance", reflectifyType);
             accessorBuilder.addBodyLines("return instance." + methodName + "();");
             String fieldSimpleName;
@@ -399,7 +399,7 @@ public class ReflectifyGenerator extends AbstractGenerator<ReflectifyGeneratorCo
 
     protected void generateMutators(JavaTypeBuilder typeBuilder, List<JavaMethod> methods, Type reflectifyType) {
         JavaMethodBuilder methodBuilder = new JavaMethodBuilder();
-        methodBuilder.addModifier(JavaModifier.PROTECTED).setName("registerMutators").setResultType(void.class);
+        methodBuilder.addModifiers(JavaModifier.PROTECTED).setName("registerMutators").setResultType(void.class);
         methodBuilder.addParameter("mutators", new ParameterizedTypeImpl(null, Map.class, String.class, new ParameterizedTypeImpl(null, Mutator.class, reflectifyType, Object.class)));
         methodBuilder.addBodyLines("\n");
         for (JavaMethod method : methods) {
@@ -417,7 +417,7 @@ public class ReflectifyGenerator extends AbstractGenerator<ReflectifyGeneratorCo
             methodBuilder.addNestedJavaType(nestedClassBuilder);
             nestedClassBuilder.addSuperInterfaces(new ParameterizedTypeImpl(null, Mutator.class, reflectifyType, fieldType));
             JavaMethodBuilder accessorBuilder = new JavaMethodBuilder();
-            accessorBuilder.addModifier(JavaModifier.PUBLIC).setName("set").setResultType(void.class);
+            accessorBuilder.addModifiers(JavaModifier.PUBLIC).setName("set").setResultType(void.class);
             accessorBuilder.addParameter("instance", reflectifyType).addParameter("value", fieldType);
             accessorBuilder.addBodyLines("instance." + methodName + "(value);");
 

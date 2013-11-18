@@ -83,15 +83,13 @@ public class ReflectifyGeneratorTest {
     }
 
 
-
     public void testBooleanFix() {
         ReflectifyRegistry reflectifyRegistry = new ReflectifyRegistryProvider(BooleanFix.class).get();
         Reflectify<BooleanFix> booleanReflectify = reflectifyRegistry.get(BooleanFix.class);
         BooleanFix booleanFix = booleanReflectify.getProvider().get();
         Assert.assertNotNull(booleanReflectify);
         Assert.assertFalse(booleanReflectify.getAccessor(boolean.class, "b").get(booleanFix));
-
-        }
+    }
 
     public static class Bar {
 
