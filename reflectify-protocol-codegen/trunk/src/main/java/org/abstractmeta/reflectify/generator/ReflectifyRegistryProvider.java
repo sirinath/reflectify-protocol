@@ -19,15 +19,20 @@ import org.abstractmeta.code.g.code.CompiledJavaType;
 import org.abstractmeta.code.g.code.CompiledJavaTypeRegistry;
 import org.abstractmeta.code.g.config.UnitDescriptor;
 import org.abstractmeta.code.g.core.generator.CodeUnitGeneratorImpl;
+import org.abstractmeta.code.g.core.util.ReflectUtil;
 import org.abstractmeta.code.g.generator.CodeUnitGenerator;
 import org.abstractmeta.code.g.generator.GeneratedCode;
 import org.abstractmeta.reflectify.Reflectify;
 import org.abstractmeta.reflectify.ReflectifyRegistry;
+import org.abstractmeta.reflectify.core.AbstractReflectify;
 import org.abstractmeta.reflectify.core.ReflectifyRegistryImpl;
 import org.abstractmeta.reflectify.generator.util.UnitDescriptorUtil;
 
 import javax.inject.Provider;
+import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * ReflectifyRegistry
@@ -35,10 +40,12 @@ import java.util.Collection;
 public class ReflectifyRegistryProvider implements Provider<ReflectifyRegistry> {
 
     private final CompiledJavaType compiledJavaType;
-
+    private final Set<String> classPathEntries;
     public ReflectifyRegistryProvider(Class... classes) {
-        compiledJavaType = compileReflectify(classes);
+        this.classPathEntries = new HashSet<String >();
+        this.compiledJavaType = compileReflectify(classes);
     }
+
 
     @Override
     public ReflectifyRegistry get() {
@@ -58,16 +65,33 @@ public class ReflectifyRegistryProvider implements Provider<ReflectifyRegistry> 
         CodeUnitGenerator unitGenerator = new CodeUnitGeneratorImpl();
         GeneratedCode generatedCode = unitGenerator.generate(unitDescriptor);
         CompiledJavaTypeRegistry registry = generatedCode.getRegistry();
-        return getReflectifyProvider(registry);
+        classPathEntries.add(ReflectUtil.getRootClassPath(Reflectify.class));
+        classPathEntries.add(ReflectUtil.getRootClassPath(AbstractReflectify.class));
+
+        for(CompiledJavaType type :registry.get()) {
+            classPathEntries.add(type.getRootClassPath());
+            for(Type importedType: type.getType().getImportTypes()) {
+                Class clazz = ReflectUtil.getRawClass(importedType);
+                if(clazz == null) continue;
+                String classPath = ReflectUtil.getRootClassPath(clazz);
+                if(classPath == null) continue;
+                classPathEntries.add(classPath);
+            }
+        }
+        return getCompiledJavaType(registry);
 
     }
 
-    protected CompiledJavaType getReflectifyProvider(CompiledJavaTypeRegistry registry) {
+    protected CompiledJavaType getCompiledJavaType(CompiledJavaTypeRegistry registry) {
         for (CompiledJavaType candidate : registry.get()) {
             if (candidate.getCompiledType().getSimpleName().equals(ReflectifyProviderGenerator.REFLECTIFY_PROVIDER)) {
                 return candidate;
             }
         }
         throw new IllegalStateException("Failed to lookup ReflecifyProvider");
+    }
+
+    public Collection<String> getClassPathEntries() {
+        return classPathEntries;
     }
 }

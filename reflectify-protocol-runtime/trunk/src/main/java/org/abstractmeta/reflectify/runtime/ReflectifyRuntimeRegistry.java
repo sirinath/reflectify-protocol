@@ -15,21 +15,12 @@
  */
 package org.abstractmeta.reflectify.runtime;
 
-import com.sun.org.apache.xalan.internal.xsltc.compiler.util.ClassGenerator;
-import org.abstractmeta.code.g.CodeGenerator;
-import org.abstractmeta.code.g.config.Descriptor;
-import org.abstractmeta.code.g.core.CodeGeneratorImpl;
-import org.abstractmeta.code.g.core.config.builder.DescriptorBuilder;
-import org.abstractmeta.code.g.core.handler.SourceCompilerHandler;
 import org.abstractmeta.reflectify.Reflectify;
 import org.abstractmeta.reflectify.ReflectifyLoader;
 import org.abstractmeta.reflectify.ReflectifyRegistry;
 import org.abstractmeta.reflectify.core.ReflectifyRegistryImpl;
-import org.abstractmeta.reflectify.plugin.ReflectifyGenerator;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -95,6 +86,8 @@ public class ReflectifyRuntimeRegistry implements ReflectifyRegistry {
         return registry.getRegistry();
     }
 
+
+    @SuppressWarnings("unchecked")
     public <T> Reflectify<T> load(Class<T> type) {
         return reflectifyClassLoader.load(type);
     }
