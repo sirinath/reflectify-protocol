@@ -29,6 +29,7 @@ import org.abstractmeta.reflectify.core.ReflectifyRegistryImpl;
 import org.abstractmeta.reflectify.generator.util.UnitDescriptorUtil;
 
 import javax.inject.Provider;
+import java.io.File;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashSet;
@@ -41,9 +42,15 @@ public class ReflectifyRegistryProvider implements Provider<ReflectifyRegistry> 
 
     private final CompiledJavaType compiledJavaType;
     private final Set<String> classPathEntries;
+
+
     public ReflectifyRegistryProvider(Class... classes) {
+        this(new File("target/"), classes);
+    }
+
+    public ReflectifyRegistryProvider(File targetCompilationDirectory, Class... classes) {
         this.classPathEntries = new HashSet<String >();
-        this.compiledJavaType = compileReflectify(classes);
+        this.compiledJavaType = compileReflectify(targetCompilationDirectory, classes);
     }
 
 
@@ -60,8 +67,8 @@ public class ReflectifyRegistryProvider implements Provider<ReflectifyRegistry> 
         }
     }
 
-    protected CompiledJavaType compileReflectify(Class... classes) {
-        UnitDescriptor unitDescriptor = UnitDescriptorUtil.getUnitDescriptor(classes);
+    protected CompiledJavaType compileReflectify(File targetCompilationDirectory, Class... classes) {
+        UnitDescriptor unitDescriptor = UnitDescriptorUtil.getReflectifyUnitDescriptor(targetCompilationDirectory, classes);
         CodeUnitGenerator unitGenerator = new CodeUnitGeneratorImpl();
         GeneratedCode generatedCode = unitGenerator.generate(unitDescriptor);
         CompiledJavaTypeRegistry registry = generatedCode.getRegistry();

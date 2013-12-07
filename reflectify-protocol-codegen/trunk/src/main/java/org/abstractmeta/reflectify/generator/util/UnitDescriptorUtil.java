@@ -16,20 +16,18 @@
 package org.abstractmeta.reflectify.generator.util;
 
 import org.abstractmeta.code.g.config.Descriptor;
+import org.abstractmeta.code.g.config.SourceMatcher;
 import org.abstractmeta.code.g.config.UnitDescriptor;
 import org.abstractmeta.code.g.core.config.DescriptorImpl;
-import org.abstractmeta.code.g.core.config.SourceMatcherImpl;
 import org.abstractmeta.code.g.core.config.UnitDescriptorImpl;
 import org.abstractmeta.reflectify.generator.ReflectifyGenerator;
 import org.abstractmeta.reflectify.generator.ReflectifyProviderGenerator;
-import org.abstractmeta.toolbox.compilation.compiler.util.ClassPathUtil;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.Collection;
+
+import static org.abstractmeta.code.g.core.util.UnitDescriptorUtil.*;
+import static org.abstractmeta.code.g.core.util.UnitDescriptorUtil.getMatcherByClassNames;
 
 /**
  *
@@ -37,32 +35,46 @@ import java.util.List;
 public class UnitDescriptorUtil {
 
 
-    public static UnitDescriptor getUnitDescriptor(Class... classes) {
+    public static UnitDescriptor getReflectifyUnitDescriptor(File targetSourceDirectory , Class... classes) {
+        File tempDirectory = getTempDirectory();
+        File sourceDirectory = getTempDirectory(tempDirectory, "source");
+        File compilationDirectory = getTempDirectory(tempDirectory, "-compilation");
         UnitDescriptorImpl result = new UnitDescriptorImpl();
-        DescriptorImpl descriptor = new DescriptorImpl();
-        SourceMatcherImpl sourceMatcher = new SourceMatcherImpl();
-        List<String> classesCollection = new ArrayList<String>();
-        for (Class clazz : classes) classesCollection.add(clazz.getName());
-        sourceMatcher.setClassNames(classesCollection);
-        descriptor.setSourceMatcher(sourceMatcher);
-        descriptor.setGeneratorClass(ReflectifyGenerator.class.getName());
-        result.setDescriptors(Arrays.<Descriptor>asList(descriptor));
-        result.setClassPathEntries(new ArrayList<String>(ClassPathUtil.getClassPathEntries()));
-        File tempFile;
-        try {
-            tempFile = File.createTempFile("reflectify", "temp");
-        } catch (IOException e) {
-            throw new IllegalStateException("Failed to create target directory");
-        }
-        File targetSourceDirectory = new File(tempFile.getParentFile(), tempFile.getName() + "-source");
-        targetSourceDirectory.mkdirs();
-        result.setTargetSourceDirectory(targetSourceDirectory.getAbsolutePath());
-
-        File compilationDirectory = new File(tempFile.getParentFile(), tempFile.getName() + "-compilation");
-        compilationDirectory.mkdirs();
+        SourceMatcher sourceMatcher = getMatcherByClassNames(sourceDirectory, classes);
+        updateUnitDescriptor(result, sourceDirectory, targetSourceDirectory, null, ReflectifyGenerator.class, sourceMatcher);
         result.setTargetCompilationDirectory(compilationDirectory.getAbsolutePath());
+        return result;
+    }
 
 
+    public static UnitDescriptor getReflectifyUnitDescriptorByPackages(File sourceDirectory, File targetSourceDirectory, Collection<String> packageNames) {
+        File tempDirectory = getTempDirectory();
+        File compilationDirectory = getTempDirectory(tempDirectory, "-compilation");
+        UnitDescriptorImpl result = new UnitDescriptorImpl();
+        SourceMatcher sourceMatcher = getSourceMatcherByPackageNames(sourceDirectory, packageNames);
+        updateUnitDescriptor(result, sourceDirectory, targetSourceDirectory, null, ReflectifyGenerator.class, sourceMatcher);
+        result.setTargetCompilationDirectory(compilationDirectory.getAbsolutePath());
+        Descriptor providerDescriptor = getProviderGeneratorDescriptor();
+        result.setPostDescriptor(providerDescriptor);
+        return result;
+    }
+
+    public static Descriptor getProviderGeneratorDescriptor() {
+        DescriptorImpl descriptor = new DescriptorImpl();
+        descriptor.setGeneratorClass(ReflectifyProviderGenerator.class.getName());
+        return descriptor;
+    }
+
+
+    public static UnitDescriptor getReflectifyUnitDescriptorByClassNames(File sourceDirectory, File targetSourceDirectory, Collection<String> classNames, boolean generateProvider) {
+        File tempDirectory = getTempDirectory();
+        File compilationDirectory = getTempDirectory(tempDirectory, "-compilation");
+        UnitDescriptorImpl result = new UnitDescriptorImpl();
+        SourceMatcher sourceMatcher = getSourceMatcherByClassNames(sourceDirectory, classNames);
+        updateUnitDescriptor(result, sourceDirectory, targetSourceDirectory, null, ReflectifyGenerator.class, sourceMatcher);
+        result.setTargetCompilationDirectory(compilationDirectory.getAbsolutePath());
+        Descriptor providerDescriptor = getProviderGeneratorDescriptor();
+        result.setPostDescriptor(providerDescriptor);
         return result;
     }
 
